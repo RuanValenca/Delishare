@@ -1,16 +1,17 @@
 import styled from "styled-components";
+import bg from "../../assets/img/programming.jpg";
 
 export const Container = styled.nav`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 5rem;
 `;
 
 export const DivInfo = styled.div`
-  padding: 0rem 4rem 2rem;
+  padding: 0rem 4rem;
   display: grid;
   gap: 2rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 40% 60%;
 `;
 
 export const Info = styled.div`
@@ -51,17 +52,17 @@ export const Description = styled.p`
 `;
 
 export const DivImage = styled.div`
+  border-radius: 12px;
   position: relative;
   display: flex;
   align-items: center;
-`;
-
-export const Img = styled.img`
-  border-radius: 12px;
+  height: 110%;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  box-shadow: 0px 6px 15px ${({ theme }) => theme.colors.shadow};
+
+  background-image: url(${bg});
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 `;
 
 export const Tech = styled.div`

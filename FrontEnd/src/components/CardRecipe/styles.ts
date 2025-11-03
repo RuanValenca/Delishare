@@ -16,8 +16,12 @@ export const Container = styled.div`
   }
 `;
 
-export const Background = styled.div`
+export const Background = styled.div<{ img?: string }>`
   height: 70%;
+  background-image: ${({ img }) => (img ? `url(${img})` : "none")};
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 `;
 
 export const Meal = styled.p`
@@ -36,7 +40,6 @@ export const Img = styled.img`
   border-radius: 12px 12px 0 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
 `;
 
 export const DescriptionBar = styled.div`

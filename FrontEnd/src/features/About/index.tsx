@@ -28,9 +28,7 @@ export default function About() {
           </S.Description>
         </S.Info>
 
-        <S.DivImage>
-          <S.Img src="src\assets\img\programming.jpg" alt="Code" />
-        </S.DivImage>
+        <S.DivImage />
       </S.DivInfo>
 
       <S.Tech>

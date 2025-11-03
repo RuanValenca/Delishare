@@ -21,9 +21,8 @@ export default function CardRecipe({
 }: Props) {
   return (
     <S.Container>
-      <S.Background>
+      <S.Background img={img?.src}>
         <S.Meal>{meal}</S.Meal>
-        {img && <S.Img src={img.src} alt={img.alt} />}
       </S.Background>
       <S.DescriptionBar>
         <S.Name>{name}</S.Name>

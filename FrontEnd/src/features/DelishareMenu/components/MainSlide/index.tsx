@@ -41,7 +41,6 @@ export default function MainSlide() {
       </S.DivText>
 
       <S.DivImage>
-        <S.Img src="src\assets\img\FotoAlimento.jpg" alt="AlimentoSlide" />
         <S.Icon>
           <ChefHat size={45} color={theme.font.colors.lightBlue} />
         </S.Icon>

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import bg from "../../../../assets/img/FotoAlimento.jpg";
 
 export const Container = styled.nav`
   background: ${({ theme }) => theme.colors.gradientBackground};
@@ -31,15 +32,19 @@ export const Description = styled.p`
 
 export const DivImage = styled.div`
   position: relative;
+  border-radius: 12px;
   display: flex;
+  height: 100%;
+  width: 100%;
   align-items: center;
+  background-image: url(${bg});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 export const Img = styled.img`
-  border-radius: 12px;
-  width: 100%;
-  height: 85%;
-  object-fit: cover;
+  height: 100%;
 `;
 
 export const Icon = styled.div`
@@ -47,7 +52,7 @@ export const Icon = styled.div`
   align-items: center;
   padding: 1rem;
   right: -20px;
-  bottom: 0;
+  bottom: -20px;
   position: absolute;
   border-radius: 12px;
   width: fit-content;

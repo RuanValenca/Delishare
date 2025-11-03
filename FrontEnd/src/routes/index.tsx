@@ -5,6 +5,7 @@ import DelishareMenu from "../features/DelishareMenu";
 import About from "../features/About";
 import Settings from "../features/Settings";
 import Recipes from "../features/Recipes";
+import Feed from "../features/Feed";
 
 export default function AppRoutes() {
   return (
@@ -17,8 +18,9 @@ export default function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/Delishare" element={<DelishareMenu />} />
           <Route path="/recipes" element={<Recipes />} />
+          <Route path="/feed" element={<Feed />} />
           <Route path="/about" element={<About />} />
-          <Route path={"/settings"} element={<Settings />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>
     </>
