@@ -34,7 +34,7 @@ export default function About() {
       <S.Tech>
         <S.TitleTech>Tecnologias</S.TitleTech>
         <S.DescriptionTech>
-          "As engrenagens por trás do que você vê funcionando aqui."
+          As engrenagens por trás do que você vê funcionando aqui.
         </S.DescriptionTech>
         <CardInfo
           IconColor={theme.colors.blueSchema.dark}

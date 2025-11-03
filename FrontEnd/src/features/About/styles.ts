@@ -21,13 +21,11 @@ export const Info = styled.div`
 `;
 
 export const DivText = styled.div`
-  height: 200px;
+  padding-top: 2rem;
   text-align: center;
   display: flex;
   justify-content: center;
   flex-direction: column;
-  gap: 1rem;
-  background: ${({ theme }) => theme.colors.blueSchema.light};
 `;
 
 export const Title = styled.h1`
@@ -66,11 +64,10 @@ export const DivImage = styled.div`
 `;
 
 export const Tech = styled.div`
-  padding: 4rem;
+  padding: 0 2rem 4rem;
   width: 100%;
   height: 90vh;
   text-align: center;
-  background: ${({ theme }) => theme.colors.greenSchema.light};
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;

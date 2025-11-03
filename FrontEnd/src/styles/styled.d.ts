@@ -56,6 +56,7 @@ declare module "styled-components" {
         whiteText: string;
         muted: string;
         placeholder: string;
+        black: string;
       };
     };
     breakpoint: {

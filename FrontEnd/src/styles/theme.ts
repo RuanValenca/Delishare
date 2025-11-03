@@ -53,6 +53,7 @@ const theme = {
       whiteText: "#FFFFFF",
       placeholder: "#FFFFFFB3",
       muted: "#E0F2FE",
+      black: "#000000",
     },
   },
   breakpoint: {

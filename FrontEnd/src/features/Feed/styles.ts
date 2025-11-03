@@ -1,7 +1,11 @@
 import styled from "styled-components";
 
-export const Container = styled.nav`
+export const Container = styled.div`
+  width: 100%;
+  padding: 4rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 5rem;
 `;

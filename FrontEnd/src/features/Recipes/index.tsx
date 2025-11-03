@@ -4,7 +4,7 @@ import FieldFormik from "../../components/FieldFormik";
 import { Formik } from "formik";
 import BasicButton from "../../components/BasicButton";
 import CardRecipe from "../../components/CardRecipe";
-import { Filter, Heart, Search, User } from "lucide-react";
+import { Heart, Search, User } from "lucide-react";
 export default function Recipes() {
   const theme = useTheme();
 
@@ -30,18 +30,6 @@ export default function Recipes() {
               type="string"
               placeholder="Procure receitas, ingredientes ou categorias"
             />
-            <BasicButton
-              gap="1rem"
-              icon={<Filter size={15} />}
-              height="medium"
-              bgColor={theme.colors.background}
-              font="medium"
-              width="medium"
-              borderColor
-              textColor={theme.font.colors.mainText}
-            >
-              Filtros
-            </BasicButton>
           </S.Form>
         </Formik>
         <S.Buttons>

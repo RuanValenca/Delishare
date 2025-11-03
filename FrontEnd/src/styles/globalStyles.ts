@@ -1,12 +1,12 @@
 import { createGlobalStyle } from "styled-components";
-import LatoRegular from "../assets/fonts/LatoRegular.ttf";
 
 export const GlobalStyles = createGlobalStyle`
   @font-face {
     font-family: 'Lato';
-    src: url(${LatoRegular}) format('truetype');
+    src: url('/assets/fonts/LatoRegular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
+    font-display: swap;
   }
 
   *, *::before, *::after {
@@ -31,6 +31,10 @@ export const GlobalStyles = createGlobalStyle`
   img {
     max-width: 100%;
     display: block;
+  }
+  
+   h1, h2, h3, h4, h5, h6, p, span, a {
+    font-family: 'Lato', sans-serif;
   }
 `;
 
