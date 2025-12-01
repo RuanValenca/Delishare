@@ -52,7 +52,7 @@ const theme = {
       gradientText: "linear-gradient(to right, #0EA5E9, #4ADE80)",
       whiteText: "#FFFFFF",
       placeholder: "#FFFFFFB3",
-      muted: "#E0F2FE",
+      muted: "#dadada",
       black: "#000000",
     },
   },

@@ -1,10 +1,17 @@
-import { ChefHat } from "lucide-react";
+import { ChefHat, DoorOpen } from "lucide-react";
 import * as S from "./styles";
 import { useTheme } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useDelishare } from "../../../hooks/useProvider";
 export default function NavBar() {
+  const { logout } = useDelishare();
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <S.Container>
@@ -19,6 +26,9 @@ export default function NavBar() {
         <S.P onClick={() => navigate("/feed")}>Feed</S.P>
         <S.P onClick={() => navigate("/recipes")}>Receitas</S.P>
         <S.P onClick={() => navigate("/about")}>Sobre</S.P>
+        <S.P onClick={() => handleLogout()}>
+          <DoorOpen />
+        </S.P>
         <S.SettingIcon onClick={() => navigate("/settings")} />
       </S.DivLink>
     </S.Container>

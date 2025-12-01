@@ -10,6 +10,7 @@ interface ButtonStyledProps {
   width: "small" | "medium" | "large" | "fullWidth";
   height: "small" | "medium" | "large" | "fullWidth";
   bgColor: string;
+  textColorHover?: string;
   bgColorHover?: string;
   borderColor?: boolean;
   disabled?: boolean;
@@ -45,7 +46,22 @@ const paddings: Record<ButtonStyledProps["width"], string> = {
   fullWidth: "10px",
 };
 
-export const Button = styled.button<ButtonStyledProps>`
+export const Button = styled.button.withConfig({
+  shouldForwardProp: (prop) =>
+    ![
+      "icon",
+      "iconColorHover",
+      "textColor",
+      "font",
+      "width",
+      "height",
+      "bgColor",
+      "textColorHover",
+      "bgColorHover",
+      "borderColor",
+      "gap",
+    ].includes(prop),
+})<ButtonStyledProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -63,7 +79,7 @@ export const Button = styled.button<ButtonStyledProps>`
   color: ${({ textColor }) => textColor};
   transition:
     transform 0.05s linear,
-    background-color 0.3s ease;
+    background-color 0.2s ease;
   gap: ${({ gap }) => (gap ? gap : "2rem")};
   &:disabled {
     cursor: not-allowed;
@@ -75,10 +91,12 @@ export const Button = styled.button<ButtonStyledProps>`
     transform: scale(0.99);
   }
 
-  ${({ bgColorHover, theme }) =>
+  ${({ bgColorHover, textColorHover, theme }) =>
     bgColorHover &&
+    textColorHover &&
     css`
       &:hover {
+        color: ${textColorHover};
         background-color: ${bgColorHover};
 
         svg {

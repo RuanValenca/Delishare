@@ -3,7 +3,9 @@ import styled, { css } from "styled-components";
 interface PropsContainer {
   labelPosition?: "top" | "left";
 }
-export const Container = styled.div<PropsContainer>`
+export const Container = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "labelPosition",
+})<PropsContainer>`
   display: flex;
   flex-direction: ${({ labelPosition }) =>
     labelPosition == "left" ? "row" : "column"};
@@ -85,7 +87,7 @@ const commonStyles = css<IStyledField>`
     outline: none;
   }
   &::placeholder {
-    color: ${({ theme }) => theme.font.colors?.mainText};
+    color: ${({ theme }) => theme.font.colors?.muted};
   }
   border: ${({ theme }) => "1px solid" + theme.colors?.border};
 
@@ -136,11 +138,12 @@ export const StyledFieldText = styled.textarea.withConfig({
     prop !== "leftIcon",
 })<IInputStyledFieldText>`
   ${commonStyles}
-
+  resize: none;
   position: relative;
   border-radius: 10px;
   height: ${(props) => (props.sizeHeight ? props.sizeHeight : "4rem")};
   padding: ${(props) => (props.padding ? props.padding : "15px")};
+  background-color: ${({ theme }) => theme.colors?.background};
 `;
 
 export const DivSelect = styled.div<IStyledField>`

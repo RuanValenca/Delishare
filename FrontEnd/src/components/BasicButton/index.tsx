@@ -6,6 +6,7 @@ interface ButtonProps {
   iconColorHover?: ReactNode;
   children?: ReactNode;
   textColor: string;
+  textColorHover?: string;
   font?: "xsmall" | "small" | "medium" | "large" | "xlarge";
   width: "small" | "medium" | "large" | "fullWidth";
   height: "small" | "medium" | "large" | "fullWidth";
@@ -15,6 +16,7 @@ interface ButtonProps {
   disabled?: boolean;
   gap?: string;
   onClick?: () => void;
+  type?: "button" | "submit" | "reset";
 }
 
 export default function Button({
@@ -26,14 +28,18 @@ export default function Button({
   width = "medium",
   height = "medium",
   bgColor = "#0070f3",
+  textColorHover = "#ffffff",
   bgColorHover,
   borderColor,
   disabled = false,
   gap = "2rem",
   onClick,
+  type = "button",
 }: ButtonProps) {
   return (
     <S.Button
+      textColorHover={textColorHover}
+      type={type}
       gap={gap}
       borderColor={borderColor}
       iconColorHover={iconColorHover}

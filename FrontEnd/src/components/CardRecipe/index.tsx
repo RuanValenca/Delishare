@@ -4,10 +4,10 @@ import * as S from "./styles";
 interface Props {
   img?: {
     src: string;
-    alt: "Nome da receita";
+    alt: string;
   };
   name: string;
-  meal: "Almoço" | "Jantar" | "Lanche" | "Café da manhã";
+  meal: "Almoço" | "Jantar" | "Lanche" | "Café";
   time: string;
   difficulty: "Fácil" | "Médio" | "Difícil";
 }

@@ -229,6 +229,7 @@ export default function FieldFormik({
           onClick={(e) => handleClick(e)}
           disabled={disabled}
           padding={padding}
+          value={value}
         />
       </>
     );

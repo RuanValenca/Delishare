@@ -1,18 +1,19 @@
-import AppRoutes from "./routes";
 import { BrowserRouter } from "react-router-dom";
-import GlobalStyles from "./styles/globalStyles";
-import theme from "./styles/theme";
+import AppRoutes from "./routes";
 import { ThemeProvider } from "styled-components";
+import theme from "./styles/theme";
+import GlobalStyles from "./styles/globalStyles";
+import AuthProvider from "./provider/AuthProvider";
 
 export default function App() {
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <GlobalStyles />
-        <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <GlobalStyles />
           <AppRoutes />
-        </BrowserRouter>
-      </ThemeProvider>
-    </>
+        </ThemeProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
