@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { ErrorMessage } from "formik";
+import { useFormikContext } from "formik";
 
 import * as S from "./styles";
 import React from "react";
@@ -115,6 +117,8 @@ export default function FieldFormik({
   padding,
   onClick,
 }: Props) {
+  const { values } = useFormikContext<any>();
+
   const sizeWidth = {
     xxsmall: { width: "6rem" },
     xsmall: { width: "10rem" },
@@ -183,7 +187,7 @@ export default function FieldFormik({
           onBlur={onBlur}
           onClick={onClick}
           disabled={disabled}
-          value={value && value}
+          value={values[name]}
         />
         <S.EyeIcon onClick={() => setVisible(!visible)}>
           {visible ? <Eye /> : <EyeOff />}
@@ -208,7 +212,7 @@ export default function FieldFormik({
           onBlur={handleBlur}
           onClick={onClick}
           disabled={disabled}
-          value={value && value}
+          value={values[name]}
         />
       </>
     );
@@ -250,7 +254,7 @@ export default function FieldFormik({
           onBlur={onBlur}
           onClick={onClick}
           disabled={disabled}
-          value={value && value}
+          value={values[name]}
         />
       </>
     );
@@ -297,7 +301,7 @@ export default function FieldFormik({
           onBlur={onBlur}
           onClick={onClick}
           disabled={disabled}
-          value={value && value}
+          value={values[name]}
         />
       </>
     );
@@ -316,7 +320,7 @@ export default function FieldFormik({
           onBlur={onBlur}
           onClick={(e) => handleClick(e)}
           disabled={disabled}
-          value={value && value}
+          value={values[name]}
         >
           {options &&
             options.map((item, i) => {

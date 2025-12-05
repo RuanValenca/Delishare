@@ -1,4 +1,5 @@
-import { HeartStraight } from "phosphor-react";
+import { User } from "lucide-react";
+import { useTheme } from "styled-components";
 import * as S from "./styles";
 import { useEffect, useState } from "react";
 
@@ -17,7 +18,7 @@ export default function CardPost({
   userName,
   createdAt,
 }: Props) {
-  const [liked, setLiked] = useState(false);
+  const theme = useTheme();
   const [src, setSrc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,12 +41,16 @@ export default function CardPost({
     <S.Container>
       <S.Header>
         <S.LeftHeader>
-          {pfp && (
+          {pfp ? (
             <S.Photo>
               <img src={pfp} alt="profile" />
             </S.Photo>
+          ) : (
+            <S.PhotoPlaceholder>
+              <User size={24} color={theme.font.colors.DarkBlue} />
+            </S.PhotoPlaceholder>
           )}
-          <span>{userName}</span>
+          <S.UserName>{userName}</S.UserName>
         </S.LeftHeader>
 
         <S.DateText>{formatDate(createdAt)}</S.DateText>
@@ -55,15 +60,6 @@ export default function CardPost({
 
       <S.TextContent>
         <S.Text>{textContent}</S.Text>
-
-        <S.Actions onClick={() => setLiked(!liked)}>
-          <HeartStraight
-            cursor="pointer"
-            size={25}
-            weight={liked ? "fill" : "light"}
-            color="red"
-          />
-        </S.Actions>
       </S.TextContent>
     </S.Container>
   );

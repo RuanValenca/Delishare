@@ -4,12 +4,16 @@ import FieldFormik from "../../../../components/FieldFormik";
 import { Formik } from "formik";
 import BasicButton from "../../../../components/BasicButton";
 import { ChefHat } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 export default function MainSlide() {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const initialValues = {
     search: "",
   };
+
   return (
     <S.Container>
       <S.DivText>
@@ -19,25 +23,38 @@ export default function MainSlide() {
           qualquer dia da semana.
         </S.Description>
 
-        <Formik initialValues={initialValues} onSubmit={() => {}}>
-          <FieldFormik
-            color={theme.font.colors.whiteText}
-            heightSize="small"
-            bgColor={theme.colors.white3}
-            name="search"
-            type="string"
-            placeholder="Procure receitas"
-          />
-        </Formik>
-        <BasicButton
-          height="medium"
-          bgColor={theme.colors.background}
-          font="medium"
-          width="large"
-          textColor={theme.font.colors.DarkBlue}
+        <Formik
+          initialValues={initialValues}
+          onSubmit={({ search }) => {
+            const term = search || "";
+            navigate(`/recipes?search=${encodeURIComponent(term)}`);
+          }}
         >
-          Explorar Receitas
-        </BasicButton>
+          {({ handleChange, handleSubmit }) => (
+            <>
+              <FieldFormik
+                color={theme.font.colors.whiteText}
+                widthSize="fullWidth"
+                heightSize="small"
+                bgColor={theme.colors.white3}
+                name="search"
+                type="string"
+                placeholder="Procure receitas"
+                onChange={handleChange}
+              />
+              <BasicButton
+                height="medium"
+                bgColor={theme.colors.background}
+                font="medium"
+                width="large"
+                textColor={theme.font.colors.DarkBlue}
+                onClick={() => handleSubmit()}
+              >
+                Explorar Receitas
+              </BasicButton>
+            </>
+          )}
+        </Formik>
       </S.DivText>
 
       <S.DivImage>

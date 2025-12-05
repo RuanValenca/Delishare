@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiURL } from "../env/index";
-import {
-  defaultReturn,
-  defaultReturnNotToast,
-  toastMessage,
-} from "../Util/Toast";
+import { defaultReturnNotToast, toastMessage } from "../Util/Toast";
 
 const lastCalls = new Map<
   string,
@@ -22,8 +18,7 @@ export const apiRequest = async (
 
   const lastCall = lastCalls.get(key);
 
-  // evita chamadas duplicadas por 5s
-  if (lastCall && now - lastCall.timestamp < 5000) {
+  if (lastCall && now - lastCall.timestamp < 1000) {
     return lastCall.promise;
   }
 
@@ -57,9 +52,9 @@ export const apiRequest = async (
         try {
           const errorData = await response.json();
 
-          // se a API retornar message → usa defaultReturn (com toast)
+          // se a API retornar message → retorna sem toast
           if (errorData?.message) {
-            return defaultReturn({
+            return defaultReturnNotToast({
               data: errorData.data ?? [],
               result: false,
               message: Array.isArray(errorData.message)
@@ -68,7 +63,7 @@ export const apiRequest = async (
             });
           }
         } catch {
-          toastMessage(["Erro inesperado na requisição"]);
+          // Erro inesperado - sem toast
         }
 
         // se não veio JSON → retorna sem toast
@@ -86,15 +81,14 @@ export const apiRequest = async (
 
       // caso a API retorne estrutura padrão
       if (json?.message && typeof json.result === "boolean") {
-        return defaultReturn(json);
+        return defaultReturnNotToast(json);
       }
 
       return json;
     } catch (error) {
       console.error("Erro de rede:", error);
-      toastMessage(["Erro de rede"]);
 
-      return defaultReturn({
+      return defaultReturnNotToast({
         data: [],
         result: false,
         message: ["Erro de rede"],

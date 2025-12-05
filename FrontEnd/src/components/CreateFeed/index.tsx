@@ -5,10 +5,11 @@ import FieldFormik from "../../components/FieldFormik";
 import { useDelishare } from "../../hooks/useProvider";
 import { useTheme } from "styled-components";
 import BasicButton from "../BasicButton";
-import { ImagePlus, Send } from "lucide-react";
+import { ImagePlus, Send, User, Loader2 } from "lucide-react";
 import { handleCreate, handleGetList } from "../../api/Feed/feed.service";
 import { fileToBase64 } from "../../Util/convertImage";
 import type { ShowResult } from "../../api/Feed/types/feed.interface";
+import { successToast, errorToast } from "../Toast";
 
 interface Props {
   setList: Dispatch<SetStateAction<ShowResult[]>>;
@@ -26,13 +27,14 @@ export default function FeedCreate(props: Props) {
   const storedUser = localStorage.getItem("userInfo");
   const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
+  const [imageFile, setImageFile] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isPosting, setIsPosting] = useState(false);
+
   const nowBR = new Date(Date.now() - 3 * 60 * 60 * 1000)
     .toISOString()
     .slice(0, 19)
     .replace("T", " ");
-
-  const [imageFile, setImageFile] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
 
   const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,36 +50,69 @@ export default function FeedCreate(props: Props) {
     <S.Container>
       <Formik
         initialValues={initialValues}
-        onSubmit={async (values, { resetForm }) => {
-          const body = {
-            description: values.description,
-            userId: userInfo.id,
-            createdAt: nowBR,
-            imageUrl: imageFile || null,
-          };
+        onSubmit={async (values, { setFieldValue }) => {
+          if (isPosting) return;
 
-          await submit(body);
+          setIsPosting(true);
 
-          resetForm();
-          setImageFile(null);
-          setPreview(null);
+          try {
+            const body = {
+              description: values.description,
+              userId: userInfo.id,
+              createdAt: nowBR,
+              imageUrl: imageFile || null,
+            };
 
-          const reqShow = await show();
-          props.setList(reqShow.data);
+            const response = await submit(body);
+
+            if (response?.result) {
+              successToast("Post publicado com sucesso!");
+
+              setFieldValue("description", "");
+              setImageFile(null);
+              setPreview(null);
+
+              const reqShow = await show();
+              props.setList(reqShow.data);
+
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+            } else {
+              const errorMessage =
+                response?.message && response.message.length > 0
+                  ? response.message[0]
+                  : "Erro ao publicar post";
+              errorToast(errorMessage);
+            }
+          } catch (error) {
+            console.error("Erro ao postar:", error);
+            errorToast("Erro ao publicar post. Tente novamente.");
+          } finally {
+            setIsPosting(false);
+          }
         }}
       >
-        {({ handleChange, values }) => (
-          <Form>
+        {({ handleChange, values, handleSubmit }) => (
+          <Form
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+              }
+            }}
+          >
             <S.InfoTop>
-              {parsedUser?.profilePhoto && (
+              {parsedUser?.profilePhoto ? (
                 <S.Photo src={parsedUser.profilePhoto} />
+              ) : (
+                <S.PhotoPlaceholder>
+                  <User size={24} color={theme.font.colors.DarkBlue} />
+                </S.PhotoPlaceholder>
               )}
-              {parsedUser?.name}
+              {parsedUser?.name || userInfo?.name}
             </S.InfoTop>
 
             <FieldFormik
               heightSize="xsmall"
-              widthSize="xlarge"
+              widthSize="fullWidth"
               type="string"
               name="description"
               placeholder="O que você está pensando?"
@@ -99,16 +134,29 @@ export default function FeedCreate(props: Props) {
               />
 
               <BasicButton
-                disabled={values.description === "" && !imageFile}
-                type="submit"
-                icon={<Send size={20} />}
+                disabled={
+                  (values.description === "" && !imageFile) || isPosting
+                }
+                type="button"
+                icon={
+                  isPosting ? (
+                    <S.LoadingIcon>
+                      <Loader2 size={25} />
+                    </S.LoadingIcon>
+                  ) : (
+                    <Send size={20} />
+                  )
+                }
                 height="medium"
                 bgColor={theme.colors.gradientBackground}
                 font="small"
                 width="medium"
                 textColor={theme.font.colors.whiteText}
+                onClick={() => {
+                  handleSubmit();
+                }}
               >
-                Postar
+                {isPosting ? null : "Postar"}
               </BasicButton>
             </S.BottomRow>
 

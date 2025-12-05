@@ -1,5 +1,5 @@
 import * as apiService from "../api.service";
-import { defaultReturn } from "../../Util/Toast";
+import { defaultReturnNotToast } from "../../Util/Toast";
 import type { BodyCreate, ShowResult } from "./types/feed.interface";
 
 const feedService = {
@@ -10,7 +10,7 @@ const feedService = {
   }> {
     try {
       const request = await apiService.apiRequest("/feed/get-feed", "GET");
-      return defaultReturn(request);
+      return defaultReturnNotToast(request);
     } catch (error) {
       if (error instanceof Error) throw new Error(error.message);
       throw new Error("Ocorreu um erro inesperado");
@@ -24,7 +24,7 @@ const feedService = {
   }> {
     try {
       const request = await apiService.apiRequest("/feed/create", "POST", body);
-      return defaultReturn(request);
+      return defaultReturnNotToast(request);
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);

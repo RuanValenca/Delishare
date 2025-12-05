@@ -10,6 +10,7 @@ interface Props {
   meal: "Almoço" | "Jantar" | "Lanche" | "Café";
   time: string;
   difficulty: "Fácil" | "Médio" | "Difícil";
+  onClick?: () => void;
 }
 
 export default function CardRecipe({
@@ -18,10 +19,14 @@ export default function CardRecipe({
   meal,
   time,
   difficulty,
+  onClick,
 }: Props) {
+  const hasImage = Boolean(img?.src && img.src.trim() !== "");
+
   return (
-    <S.Container>
-      <S.Background img={img?.src}>
+    <S.Container onClick={onClick}>
+      <S.Background img={hasImage ? img?.src : undefined}>
+        {!hasImage && <S.Fallback>{name}</S.Fallback>}
         <S.Meal>{meal}</S.Meal>
       </S.Background>
       <S.DescriptionBar>

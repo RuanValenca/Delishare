@@ -6,6 +6,7 @@ import usersRouter from "./routes/users";
 import recipesRouter from "./routes/recipes";
 import feedRouter from "./routes/feed";
 import cors from "cors";
+import path from "path";
 
 dotenv.config();
 
@@ -23,6 +24,12 @@ app.use(
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Servir arquivos estáticos da pasta public
+// __dirname em runtime será backend/src, então public está em backend/src/public
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
+console.log("📁 Servindo arquivos estáticos de:", publicPath);
 
 // Rotas
 app.use("/", loginRouter);

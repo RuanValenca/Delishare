@@ -14,14 +14,21 @@ export const Container = styled.div`
   &:hover {
     box-shadow: 0px 10px 15px ${({ theme }) => theme.colors.shadow};
   }
+
+  @media (max-width: 540px) {
+    height: 300px;
+  }
 `;
 
 export const Background = styled.div<{ img?: string }>`
   height: 70%;
+  position: relative;
   background-image: ${({ img }) => (img ? `url(${img})` : "none")};
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  background-color: ${({ img, theme }) =>
+    img ? "transparent" : theme.colors.gradientBackgroundLight};
 `;
 
 export const Meal = styled.p`
@@ -34,6 +41,22 @@ export const Meal = styled.p`
   background: ${({ theme }) => theme.colors.greenSchema.default};
   font-weight: ${({ theme }) => theme.font.weight.bold};
   font-size: ${({ theme }) => theme.font.size.textXs};
+`;
+
+export const Fallback = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  color: ${({ theme }) => theme.font.colors.whiteText};
+  font-size: ${({ theme }) => theme.font.size.textLg};
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  /* backdrop-filter: brightness(0.9);
+   */
+  background: ${({ theme }) => theme.colors.greenSchema.default};
 `;
 
 export const Img = styled.img`
@@ -56,6 +79,15 @@ export const Name = styled.h3`
   grid-column: span 2;
   color: ${({ theme }) => theme.font.colors.DarkBlue};
   font-weight: ${({ theme }) => theme.font.weight.semibold};
+  margin-bottom: 0;
+
+  @media (max-width: 540px) {
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 425px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const InfoText = styled.p`

@@ -2,35 +2,51 @@ import { Router, Request, Response } from "express";
 import { pool } from "../db";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { ApiResponse } from "../types/genericApi.interface";
+import { upload } from "../middleware/upload";
+import { saveFileToPublic } from "../util/fileUpload";
+
+// URL base do backend (usar variável de ambiente ou padrão)
+const getBaseUrl = (req: Request): string => {
+  // Se tiver variável de ambiente BACKEND_URL, usa ela
+  if (process.env.BACKEND_URL) {
+    // Remove barra final se houver
+    return process.env.BACKEND_URL.replace(/\/$/, "");
+  }
+  // Senão, constrói a partir da requisição
+  return `${req.protocol}://${req.get("host")}`;
+};
 
 interface CreateRecipeResponse {
   id: number;
 }
 
-interface CreateBody {
-  userId: number;
+interface CreateRecipeBody {
+  userId: string;
   recipeName: string;
   description: string;
-  img: string;
-  createdAt: Date;
+  instructions: string;
+  createdAt: string;
   time: string;
   meal: string;
   difficulty: string;
 }
+
 interface ResponseData extends RowDataPacket {
   id: number;
   userId: number;
   recipeName: string;
   description: string;
+  instructions: string;
+  img: string;
   meal: string;
   difficulty: string;
-  instructions: string;
+  time: string;
   createdAt: string;
 }
 
 const router = Router();
 
-router.get("/get-recipes", async (_req: Request, res: Response) => {
+router.get("/get-recipes", async (req: Request, res: Response) => {
   try {
     const [rows] = await pool.query<ResponseData[]>(
       `SELECT 
@@ -38,20 +54,29 @@ router.get("/get-recipes", async (_req: Request, res: Response) => {
       user_id AS userId,
       recipeName,
       description,
+      instructions,
       meal,
       difficulty,
+      time,
       image_url AS img,
       created_at AS createdAt
     FROM recipes`
     );
 
+    // Adicionar URL completa para as imagens
+    const baseUrl = getBaseUrl(req);
+    const recipesWithUrls = rows.map((recipe) => ({
+      ...recipe,
+      img: recipe.img ? `${baseUrl}${recipe.img}` : null,
+    }));
+
     res.json({
-      data: rows,
+      data: recipesWithUrls,
       message: ["Receitas listadas com sucesso"],
       result: true,
     });
   } catch (error) {
-    console.error("Erro na rota POST /create:", error);
+    console.error("Erro na rota GET /get-recipes:", error);
     res.status(500).json({
       data: null,
       message: ["Erro interno do servidor"],
@@ -62,18 +87,22 @@ router.get("/get-recipes", async (_req: Request, res: Response) => {
 
 router.post(
   "/create",
+  upload.single("image"),
   async (req: Request, res: Response<ApiResponse<CreateRecipeResponse>>) => {
     try {
       const {
         userId,
         recipeName,
         description,
-        img,
+        instructions,
         createdAt,
         time,
         meal,
         difficulty,
-      }: CreateBody = req.body;
+      } = req.body as CreateRecipeBody;
+
+      // Salvar arquivo na pasta pública usando a função utilitária
+      const imagePath = req.file ? saveFileToPublic(req.file, "recipes") : null;
 
       const mysqlDate = new Date(createdAt)
         .toISOString()
@@ -84,6 +113,7 @@ router.post(
         !userId ||
         !recipeName ||
         !description ||
+        !instructions ||
         !createdAt ||
         !time ||
         !meal ||
@@ -97,12 +127,13 @@ router.post(
       }
 
       const [result] = await pool.query<ResultSetHeader>(
-        "INSERT INTO recipes (user_id as userId ,recipeName, description, image_url as imageUrl, created_at as createdAt, meal, time, difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO recipes (user_id, recipeName, description, instructions, image_url, created_at, meal, time, difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          userId,
+          Number(userId),
           recipeName,
           description,
-          img,
+          instructions,
+          imagePath,
           mysqlDate,
           meal,
           time,

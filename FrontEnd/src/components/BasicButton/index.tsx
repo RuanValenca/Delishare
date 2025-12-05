@@ -17,6 +17,7 @@ interface ButtonProps {
   gap?: string;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
+  isActive?: boolean;
 }
 
 export default function Button({
@@ -35,6 +36,7 @@ export default function Button({
   gap = "2rem",
   onClick,
   type = "button",
+  isActive = false,
 }: ButtonProps) {
   return (
     <S.Button
@@ -51,6 +53,7 @@ export default function Button({
       bgColor={bgColor}
       disabled={disabled}
       onClick={onClick}
+      isActive={isActive}
     >
       {icon}
       {children}

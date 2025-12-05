@@ -1,5 +1,5 @@
 import * as apiService from "../api.service";
-import { defaultReturn } from "../../Util/Toast";
+import { defaultReturnWithToast } from "../../Util/Toast";
 import type { BodyCreateUpdate, BodyShowResult } from "./types/user.interface";
 
 const userService = {
@@ -12,7 +12,7 @@ const userService = {
       const request = await apiService.apiRequest("/user/get-user", "POST", {
         userId,
       });
-      return defaultReturn(request);
+      return defaultReturnWithToast(request);
     } catch (error) {
       if (error instanceof Error) throw new Error(error.message);
       throw new Error("Ocorreu um erro inesperado");
@@ -30,7 +30,7 @@ const userService = {
         "POST",
         body
       );
-      return defaultReturn(request);
+      return defaultReturnWithToast(request);
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);

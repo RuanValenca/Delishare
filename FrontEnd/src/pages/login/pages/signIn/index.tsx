@@ -148,7 +148,7 @@ export default function SignIn() {
               font="small"
               width="fullWidth"
             >
-              Entrar
+              {createUser ? "Cadastrar" : "Entrar"}
             </BasicButton>
           </S.Form>
         )}

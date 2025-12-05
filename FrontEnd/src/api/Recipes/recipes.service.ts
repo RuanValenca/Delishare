@@ -1,5 +1,6 @@
 import * as apiService from "../api.service";
-import { defaultReturn } from "../../Util/Toast";
+import { defaultReturnNotToast } from "../../Util/Toast";
+import { changeObjectToFormData } from "../api.service";
 import type { BodyCreate, ShowResult } from "./types/recipes.interface";
 
 const recipeService = {
@@ -13,43 +14,31 @@ const recipeService = {
         "/recipes/get-recipes",
         "GET"
       );
-      return defaultReturn(request);
+      return defaultReturnNotToast(request);
     } catch (error) {
       if (error instanceof Error) throw new Error(error.message);
       throw new Error("Ocorreu um erro inesperado");
     }
   },
 
-  async getMyRecipe(id: number): Promise<{
-    data: ShowResult[];
-    message: string[];
-    result: boolean;
-  }> {
-    try {
-      const request = await apiService.apiRequest(
-        "/recipes/get-recipes",
-        "POST",
-        { id }
-      );
-      return defaultReturn(request);
-    } catch (error) {
-      if (error instanceof Error) throw new Error(error.message);
-      throw new Error("Ocorreu um erro inesperado");
-    }
-  },
-
-  async createRecipe(body: BodyCreate): Promise<{
+  async createRecipe(body: BodyCreate & { image?: File }): Promise<{
     data: string[];
     message: string[];
     result: boolean;
   }> {
     try {
+      const formData = changeObjectToFormData({
+        ...body,
+        image: body.image,
+      });
+
       const request = await apiService.apiRequest(
         "/recipes/create",
         "POST",
-        body
+        formData,
+        "file"
       );
-      return defaultReturn(request);
+      return defaultReturnNotToast(request);
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -69,16 +58,9 @@ export const handleGetList = async () => {
   }
 };
 
-export const handleGetMyList = async (id: number) => {
-  try {
-    const { data, result, message } = await recipeService.getMyRecipe(id);
-    return { data, message, result };
-  } catch (error) {
-    throw new Error(String(error));
-  }
-};
-
-export const handleCreate = async (body: BodyCreate) => {
+export const handleCreate = async (
+  body: BodyCreate & { image?: File }
+) => {
   try {
     const { data, result, message } = await recipeService.createRecipe(body);
     return { data, message, result };

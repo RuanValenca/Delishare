@@ -6,6 +6,15 @@ export const Container = styled.nav`
   gap: 2rem;
   padding: 2rem 10rem;
   background: ${({ theme }) => theme.colors.white3};
+
+  @media (max-width: 768px) {
+    padding: 2rem 3rem;
+  }
+
+  @media (max-width: 540px) {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
 `;
 
 export const DivTop = styled.div`
@@ -32,13 +41,21 @@ export const Title = styled.h1`
   background-clip: text;
   color: transparent;
   font-size: ${({ theme }) => theme.font.size.text4Xl};
+
+  @media (max-width: 768px) {
+    font-size: ${({ theme }) => theme.font.size.text3Xl};
+  }
+
+  @media (max-width: 540px) {
+    font-size: ${({ theme }) => theme.font.size.text2Xl};
+  }
 `;
 
 export const Description = styled.p`
   width: 100%;
   color: ${({ theme }) => theme.font.colors.secondaryText};
   font-size: ${({ theme }) => theme.font.size.textLg};
-  font-weight: ${({ theme }) => theme.font.weight.light};
+  font-weight: ${({ theme }) => theme.font.weight.normal};
 `;
 
 export const DivInfo = styled.div`
@@ -49,6 +66,11 @@ export const DivInfo = styled.div`
   background: ${({ theme }) => theme.colors.background};
   padding: 2rem;
   gap: 2rem;
+
+  @media (max-width: 540px) {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
 `;
 
 export const TitleInfo = styled.h1`
@@ -71,6 +93,11 @@ export const DivImage = styled.div`
   display: flex;
   align-items: center;
   border: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (max-width: 540px) {
+    width: 150px;
+    height: 150px;
+  }
 `;
 
 export const Img = styled.img`

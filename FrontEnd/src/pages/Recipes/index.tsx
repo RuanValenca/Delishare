@@ -4,17 +4,21 @@ import FieldFormik from "../../components/FieldFormik";
 import { Formik } from "formik";
 import BasicButton from "../../components/BasicButton";
 import CardRecipe from "../../components/CardRecipe";
+import RecipeModal from "../../components/RecipeModal";
 import {
   ArrowBigRightDash,
+  ArrowUpDown,
   Heart,
+  ImagePlus,
   PlusCircle,
   Search,
   User,
 } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import type { ShowResult } from "../../api/Recipes/types/recipes.interface";
 import { handleCreate, handleGetList } from "../../api/Recipes/recipes.service";
 import { DelishareContext } from "../../contexts/delishareContext";
+import { useSearchParams } from "react-router-dom";
 
 const initialValues = {
   createdAt: new Date().toISOString().slice(0, 19).replace("T", " "),
@@ -23,7 +27,7 @@ const initialValues = {
   time: "",
   difficulty: "",
   description: "",
-  img: "",
+  instructions: "",
   search: "",
 };
 
@@ -45,50 +49,110 @@ const options = {
 
 export default function Recipes() {
   const { userInfo } = useContext(DelishareContext);
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
   const theme = useTheme();
 
   const [list, setList] = useState<ShowResult[]>([]);
   const [filteredList, setFilteredList] = useState<ShowResult[]>([]);
   const [isCreate, setIsCreate] = useState<boolean>(false);
+  const [isReversed, setIsReversed] = useState<boolean>(false);
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "mine" | "liked" | null
+  >(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<ShowResult | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const applyOrder = useCallback(
+    (data: ShowResult[]) => {
+      return isReversed ? [...data].reverse() : data;
+    },
+    [isReversed]
+  );
+
+  const fetchData = useCallback(async () => {
+    const response = await handleGetList();
+
+    if (response.result) {
+      setList(response.data);
+      setFilteredList(applyOrder(response.data));
+    }
+  }, [applyOrder]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await handleGetList();
-
-      if (response.result) {
-        setList(response.data);
-        setFilteredList(response.data);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [fetchData]);
+
+  // Se veio um termo de busca pela URL, aplica o filtro automaticamente
+  useEffect(() => {
+    if (!urlSearch) return;
+
+    const normalizeText = (text: string) =>
+      text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+    const term = normalizeText(urlSearch);
+
+    const filtered = list.filter(
+      (item) =>
+        normalizeText(item.recipeName).includes(term) ||
+        normalizeText(item.meal).includes(term) ||
+        normalizeText(item.description || "").includes(term) ||
+        normalizeText(item.instructions || "").includes(term)
+    );
+
+    if (filtered.length > 0) {
+      setFilteredList(applyOrder(filtered));
+      setActiveFilter(null);
+    }
+  }, [urlSearch, list, isReversed, applyOrder]);
 
   return (
     <S.Container>
       <Formik
-        initialValues={initialValues}
+        initialValues={{ ...initialValues, search: urlSearch }}
         onSubmit={() => {}}
         enableReinitialize
       >
         {({ values, handleChange, resetForm }) => {
-          const handleSearch = () => {
+          const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setImageFile(file);
+            setPreview(URL.createObjectURL(file));
+          };
+
+          const handleSearch = (termOverride?: string) => {
             const normalizeText = (text: string) =>
               text
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .toLowerCase();
 
-            const term = normalizeText(values.search || "");
+            const term = normalizeText(termOverride ?? values.search ?? "");
 
             const filtered = list.filter(
               (item) =>
                 normalizeText(item.recipeName).includes(term) ||
                 normalizeText(item.meal).includes(term) ||
-                normalizeText(item.description).includes(term)
+                normalizeText(item.description || "").includes(term) ||
+                normalizeText(item.instructions || "").includes(term)
             );
 
-            setFilteredList(filtered);
+            const finalList = isReversed ? [...filtered].reverse() : filtered;
+            setFilteredList(finalList);
+            setActiveFilter(null);
+          };
+
+          const handleReverseOrder = () => {
+            const newReversed = !isReversed;
+            setIsReversed(newReversed);
+            setFilteredList((prev) => [...prev].reverse());
           };
 
           return (
@@ -99,7 +163,18 @@ export default function Recipes() {
                   Descubra, organize e compartilhe suas receitas favoritas
                 </S.Description>
 
-                <S.Form>
+                <S.Form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSearch();
+                    }
+                  }}
+                >
                   <FieldFormik
                     color={theme.font.colors.secondaryText}
                     heightSize="small"
@@ -112,6 +187,7 @@ export default function Recipes() {
                   />
 
                   <BasicButton
+                    type="button"
                     gap="1rem"
                     icon={<Search size={15} />}
                     bgColorHover={theme.colors.blueSchema.default}
@@ -121,13 +197,40 @@ export default function Recipes() {
                     font="medium"
                     width="medium"
                     textColor={theme.font.colors.secondaryText}
-                    onClick={handleSearch}
+                    onClick={() => handleSearch()}
                   >
                     Buscar
                   </BasicButton>
                 </S.Form>
 
                 <S.Buttons>
+                  <BasicButton
+                    gap="1rem"
+                    icon={<PlusCircle size={15} />}
+                    bgColorHover={theme.colors.blueSchema.default}
+                    height="small"
+                    bgColor={theme.colors.background}
+                    font="medium"
+                    width="medium"
+                    textColor={theme.font.colors.secondaryText}
+                    isActive={isCreate}
+                    onClick={() => {
+                      if (isCreate) {
+                        // Se está fechando o formulário, volta para a lista completa
+                        setIsCreate(false);
+                        setActiveFilter(null);
+                        setFilteredList(applyOrder(list));
+                        setImageFile(null);
+                        setPreview(null);
+                      } else {
+                        // Se está abrindo o formulário, fecha os filtros
+                        setIsCreate(true);
+                        setActiveFilter(null);
+                      }
+                    }}
+                  >
+                    {!isCreate ? "Criar" : "Voltar"}
+                  </BasicButton>
                   <BasicButton
                     gap="1rem"
                     icon={<Search size={15} />}
@@ -137,7 +240,12 @@ export default function Recipes() {
                     font="medium"
                     width="medium"
                     textColor={theme.font.colors.secondaryText}
-                    onClick={() => setFilteredList(list)}
+                    isActive={activeFilter === "all"}
+                    onClick={() => {
+                      setFilteredList(list);
+                      setActiveFilter("all");
+                      setIsCreate(false);
+                    }}
                   >
                     Todas
                   </BasicButton>
@@ -151,11 +259,21 @@ export default function Recipes() {
                     font="medium"
                     width="medium"
                     textColor={theme.font.colors.secondaryText}
+                    isActive={activeFilter === "mine"}
                     onClick={() => {
+                      setActiveFilter("mine");
+                      setIsCreate(false);
+
+                      if (!userInfo?.id) {
+                        setFilteredList(applyOrder([]));
+                        return;
+                      }
+
                       const mine = list.filter(
-                        (recipe) => recipe.userId === userInfo.id
+                        (recipe) =>
+                          Number(recipe.userId) === Number(userInfo.id)
                       );
-                      setFilteredList(mine);
+                      setFilteredList(applyOrder(mine));
                     }}
                   >
                     Minhas
@@ -170,28 +288,29 @@ export default function Recipes() {
                     font="medium"
                     width="medium"
                     textColor={theme.font.colors.secondaryText}
+                    isActive={activeFilter === "liked"}
+                    onClick={() => {
+                      // TODO: Implementar filtro de curtidas
+                      setActiveFilter("liked");
+                      setIsCreate(false);
+                    }}
                   >
                     Curtidas
                   </BasicButton>
 
-                  <BasicButton
-                    gap="1rem"
-                    icon={<PlusCircle size={15} />}
-                    bgColorHover={theme.colors.blueSchema.default}
-                    height="small"
-                    bgColor={theme.colors.background}
-                    font="medium"
-                    width="medium"
-                    textColor={theme.font.colors.secondaryText}
-                    onClick={() => setIsCreate(!isCreate)}
+                  <S.ReverseButton
+                    type="button"
+                    onClick={handleReverseOrder}
+                    title={isReversed ? "Ordem normal" : "Inverter ordem"}
                   >
-                    {!isCreate ? "Criar" : "Voltar"}
-                  </BasicButton>
+                    <ArrowUpDown size={20} />
+                  </S.ReverseButton>
                 </S.Buttons>
               </S.DivTop>
 
               {isCreate ? (
                 <S.CreateFormContainer>
+                  <S.FormTitle>Criar Nova Receita</S.FormTitle>
                   <FieldFormik
                     color={theme.font.colors.secondaryText}
                     heightSize="small"
@@ -243,20 +362,53 @@ export default function Recipes() {
                     bgColor={theme.colors.background}
                     name="description"
                     type="string"
-                    placeholder="Descrição, ingredientes ou instruções"
+                    placeholder="Descrição da receita"
                     onChange={handleChange}
                   />
 
                   <FieldFormik
                     color={theme.font.colors.secondaryText}
-                    heightSize="small"
+                    heightSize="textSmall"
                     widthSize="fullWidth"
                     bgColor={theme.colors.background}
-                    name="img"
-                    type="string"
-                    placeholder="Imagem da Receita (URL)"
+                    name="instructions"
+                    type="textarea"
+                    placeholder="Instruções de preparo (passo a passo)"
                     onChange={handleChange}
                   />
+
+                  <S.ImageUploadContainer>
+                    <S.ImageButton htmlFor="recipeImageInput">
+                      <ImagePlus size={22} />
+                      <span>Anexar imagem</span>
+                    </S.ImageButton>
+
+                    <input
+                      type="file"
+                      id="recipeImageInput"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleImage}
+                    />
+
+                    {preview && (
+                      <S.ImagePreview>
+                        <img src={preview} alt="Preview da receita" />
+                        <S.RemoveButton
+                          type="button"
+                          onClick={() => {
+                            if (preview) {
+                              URL.revokeObjectURL(preview);
+                            }
+                            setPreview(null);
+                            setImageFile(null);
+                          }}
+                        >
+                          X
+                        </S.RemoveButton>
+                      </S.ImagePreview>
+                    )}
+                  </S.ImageUploadContainer>
 
                   <BasicButton
                     gap="1rem"
@@ -275,12 +427,18 @@ export default function Recipes() {
                         time: values.time,
                         difficulty: values.difficulty,
                         description: values.description,
-                        img: values.img,
+                        instructions: values.instructions,
+                        image: imageFile || undefined,
                       });
 
                       if (response.result) {
                         setIsCreate(false);
                         resetForm();
+                        setActiveFilter(null);
+                        setImageFile(null);
+                        setPreview(null);
+                        // Atualiza a lista após criar uma receita
+                        await fetchData();
                       }
                     }}
                   />
@@ -293,13 +451,30 @@ export default function Recipes() {
                         difficulty={recipe.difficulty}
                         meal={recipe.meal}
                         time={recipe.time}
-                        img={{ src: recipe.img, alt: recipe.recipeName }}
+                        img={
+                          recipe.img && recipe.img.trim() !== ""
+                            ? { src: recipe.img, alt: recipe.recipeName }
+                            : undefined
+                        }
                         name={recipe.recipeName}
+                        onClick={() => {
+                          setSelectedRecipe(recipe);
+                          setIsModalOpen(true);
+                        }}
                       />
                     </div>
                   ))}
                 </S.Results>
               )}
+
+              <RecipeModal
+                recipe={selectedRecipe}
+                isOpen={isModalOpen}
+                onClose={() => {
+                  setIsModalOpen(false);
+                  setSelectedRecipe(null);
+                }}
+              />
             </>
           );
         }}

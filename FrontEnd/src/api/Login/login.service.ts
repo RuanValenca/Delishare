@@ -1,5 +1,5 @@
 import * as apiService from "../api.service";
-import { defaultReturn } from "../../Util/Toast";
+import { defaultReturnWithToast } from "../../Util/Toast";
 import type { IBodyLogin, IResultLogin } from "./types/login.interface";
 
 export const loginService = {
@@ -10,7 +10,7 @@ export const loginService = {
   }> {
     try {
       const request = await apiService.apiRequest("/login", "POST", body);
-      return defaultReturn(request);
+      return defaultReturnWithToast(request);
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);

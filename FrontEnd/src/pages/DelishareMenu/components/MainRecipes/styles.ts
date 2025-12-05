@@ -6,6 +6,16 @@ export const Container = styled.nav`
   display: flex;
   flex-direction: column;
   gap: 3rem;
+
+  @media (max-width: 768px) {
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  @media (max-width: 540px) {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
 `;
 
 export const DivText = styled.div`
@@ -21,6 +31,14 @@ export const Title = styled.h1`
   background-clip: text;
   font-size: ${({ theme }) => theme.font.size.text4Xl};
   font-weight: ${({ theme }) => theme.font.weight.bold};
+
+  @media (max-width: 768px) {
+    font-size: ${({ theme }) => theme.font.size.text3Xl};
+  }
+
+  @media (max-width: 540px) {
+    font-size: ${({ theme }) => theme.font.size.text2Xl};
+  }
 `;
 
 export const Description = styled.p`
@@ -29,6 +47,14 @@ export const Description = styled.p`
   color: ${({ theme }) => theme.font.colors.secondaryText};
   font-size: ${({ theme }) => theme.font.size.textXl};
   font-weight: ${({ theme }) => theme.font.weight.normal};
+
+  @media (max-width: 768px) {
+    font-size: ${({ theme }) => theme.font.size.textBase};
+  }
+
+  @media (max-width: 540px) {
+    font-size: ${({ theme }) => theme.font.size.textSm};
+  }
 `;
 
 export const DivCard = styled.div`
@@ -36,6 +62,16 @@ export const DivCard = styled.div`
   gap: 2rem;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(1, 1fr);
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 `;
 
 export const Link = styled.p`

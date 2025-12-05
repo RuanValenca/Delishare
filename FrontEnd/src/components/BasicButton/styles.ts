@@ -15,6 +15,7 @@ interface ButtonStyledProps {
   borderColor?: boolean;
   disabled?: boolean;
   gap?: string;
+  isActive?: boolean;
 }
 
 const fontSizes: Record<ButtonStyledProps["font"], string> = {
@@ -60,6 +61,7 @@ export const Button = styled.button.withConfig({
       "bgColorHover",
       "borderColor",
       "gap",
+      "isActive",
     ].includes(prop),
 })<ButtonStyledProps>`
   display: inline-flex;
@@ -106,6 +108,19 @@ export const Button = styled.button.withConfig({
               ? theme.colors.greenSchema.dark
               : "inherit"};
         }
+      }
+    `}
+
+  ${({ isActive, theme, bgColorHover }) =>
+    isActive &&
+    css`
+      background-color: ${bgColorHover || theme.colors.blueSchema.default};
+      color: ${theme.font.colors.whiteText};
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transform: scale(1.02);
+
+      svg {
+        color: ${theme.font.colors.whiteText};
       }
     `}
 `;
