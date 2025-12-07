@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
 import { ApiResponse } from "../types/genericApi.interface";
-import { RowDataPacket } from "mysql2";
 
 export interface UpdateUserBody {
   userId: number;
@@ -13,7 +12,7 @@ export interface UpdateUserBody {
   isCreate: boolean;
 }
 
-export interface GetUserResponse extends RowDataPacket {
+export interface GetUserResponse {
   id: number;
   name: string;
   email: string;
@@ -33,14 +32,15 @@ router.post(
     const { userId }: { userId: number } = req.body;
 
     try {
-      const [rows] = await pool.query<GetUserResponse[]>(
+      const result = await pool.query<GetUserResponse>(
         `
         SELECT id, name, email, password, profile_photo AS pfp, bio
         FROM users
-        WHERE id = ?
+        WHERE id = $1
         `,
         [userId]
       );
+      const rows = result.rows;
 
       res.json({
         data: rows,
@@ -76,7 +76,7 @@ router.post(
         await pool.query(
           `
           INSERT INTO users (name, email, password, profile_photo, bio, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+          VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
           `,
           [name, email, password, pfp, bio]
         );
@@ -84,8 +84,8 @@ router.post(
         await pool.query(
           `
           UPDATE users
-          SET name = ?, email = ?, password = ?, profile_photo = ?, bio = ?, updated_at = NOW()
-          WHERE id = ?
+          SET name = $1, email = $2, password = $3, profile_photo = $4, bio = $5, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $6
           `,
           [name, email, password, pfp, bio, userId]
         );

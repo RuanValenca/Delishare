@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
-import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { ApiResponse } from "../types/genericApi.interface";
 import { upload } from "../middleware/upload";
 import { saveFileToPublic } from "../util/fileUpload";
@@ -31,7 +30,7 @@ interface CreateRecipeBody {
   difficulty: string;
 }
 
-interface ResponseData extends RowDataPacket {
+interface ResponseData {
   id: number;
   userId: number;
   recipeName: string;
@@ -48,20 +47,21 @@ const router = Router();
 
 router.get("/get-recipes", async (req: Request, res: Response) => {
   try {
-    const [rows] = await pool.query<ResponseData[]>(
+    const result = await pool.query<ResponseData>(
       `SELECT 
       id,
-      user_id AS userId,
-      recipeName,
+      user_id AS "userId",
+      "recipeName",
       description,
       instructions,
       meal,
       difficulty,
       time,
       image_url AS img,
-      created_at AS createdAt
+      created_at AS "createdAt"
     FROM recipes`
     );
+    const rows = result.rows;
 
     // Adicionar URL completa para as imagens
     const baseUrl = getBaseUrl(req);
@@ -126,8 +126,9 @@ router.post(
         });
       }
 
-      const [result] = await pool.query<ResultSetHeader>(
-        "INSERT INTO recipes (user_id, recipeName, description, instructions, image_url, created_at, meal, time, difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      const result = await pool.query<{ id: number }>(
+        `INSERT INTO recipes (user_id, "recipeName", description, instructions, image_url, created_at, meal, time, difficulty) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
         [
           Number(userId),
           recipeName,
@@ -142,7 +143,7 @@ router.post(
       );
 
       res.json({
-        data: { id: result.insertId },
+        data: { id: result.rows[0].id },
         message: ["Receita criada com sucesso"],
         result: true,
       });

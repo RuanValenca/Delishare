@@ -1,10 +1,12 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
-import { RowDataPacket } from "mysql2";
 
-interface LoginProps extends RowDataPacket {
+interface LoginProps {
+  id: number;
+  name: string;
   email: string;
-  password: string;
+  profilePhoto: string;
+  bio: string;
 }
 
 const router = Router();
@@ -18,13 +20,13 @@ router.post("/login", async (req: Request, res: Response) => {
         .json({ message: "Email e senha são obrigatórios.", result: false });
     }
 
-    const [users] = await pool.query<LoginProps[]>(
-      "SELECT id, name, email, profile_photo as profilePhoto, bio FROM users WHERE email = ? AND password = ?",
+    const result = await pool.query<LoginProps>(
+      'SELECT id, name, email, profile_photo as "profilePhoto", bio FROM users WHERE email = $1 AND password = $2',
       [email, password]
     );
 
     // Só um usuário deve voltar
-    const user = users[0];
+    const user = result.rows[0];
 
     if (!user) {
       return res
