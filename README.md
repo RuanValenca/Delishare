@@ -9,7 +9,7 @@ Delishare é uma aplicação web para compartilhamento de receitas, com feed de 
 ```
 Delishare/
 ├── backend/       # API em Node.js/Express
-├── frontend/      # Aplicação React + TypeScript
+├── FrontEnd/      # Aplicação React + TypeScript
 └── README.md
 ```
 
@@ -19,38 +19,38 @@ Delishare/
 
 ### Frontend
 
-* React.js
-* TypeScript
-* Styled Components
-* Formik
-* React Router
-* Lucide Icons
+- React.js
+- TypeScript
+- Styled Components
+- Formik
+- React Router
+- Lucide Icons
 
 ### Backend
 
-* Node.js
-* Express
-* MySQL2
-* TypeScript
-* API REST
+- Node.js
+- Express
+- MySQL2
+- TypeScript
+- API REST
 
 ---
 
 ## Funcionalidades
 
-* Cadastro e login de usuários
-* Perfil de usuário com foto, bio e dados
-* CRUD de receitas (criar, listar)
-* Feed de postagens com descrição e imagem
-* Filtro de receitas por usuário, refeição e dificuldade
+- Cadastro e login de usuários
+- Perfil de usuário com foto, bio e dados
+- CRUD de receitas (criar, listar)
+- Feed de postagens com descrição e imagem
+- Filtro de receitas por usuário, refeição e dificuldade
 
 ---
 
 ## Pré-requisitos
 
-* Node.js >= 18
-* Yarn
-* MySQL
+- Node.js >= 18
+- Yarn
+- MySQL
 
 ---
 
@@ -70,7 +70,17 @@ cd backend
 yarn install
 ```
 
-3. Configure o `.env` com as credenciais do MySQL.
+3. Configure o `.env` com as credenciais do MySQL (veja exemplo abaixo):
+
+   ```env
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=sua_senha
+   DB_NAME=delishare
+   DB_PORT=3306
+   PORT=3000
+   FRONTEND_URL=http://localhost:5173
+   ```
 
 4. Inicie o servidor:
 
@@ -85,7 +95,7 @@ yarn dev
 1. Entre na pasta do frontend:
 
 ```bash
-cd frontend
+cd FrontEnd
 ```
 
 2. Instale as dependências:
@@ -94,7 +104,13 @@ cd frontend
 yarn install
 ```
 
-3. Inicie o servidor de desenvolvimento:
+3. Configure o `.env` com a URL da API (veja exemplo abaixo):
+
+   ```env
+   VITE_API_URL=http://localhost:3000
+   ```
+
+4. Inicie o servidor de desenvolvimento:
 
 ```bash
 yarn dev
@@ -104,10 +120,72 @@ O frontend rodará normalmente em `http://localhost:5173` (ou porta configurada 
 
 ---
 
+---
+
+## Deploy para Produção
+
+### Preparação
+
+Antes de fazer deploy, você precisa configurar as variáveis de ambiente para produção:
+
+#### Backend
+
+1. Crie um arquivo `.env` na pasta `backend/` com as seguintes variáveis:
+
+```env
+DB_HOST=seu_host_mysql
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=delishare
+DB_PORT=3306
+PORT=3000
+FRONTEND_URL=https://seu-dominio-frontend.com
+```
+
+2. Build do backend:
+
+```bash
+cd backend
+yarn install
+yarn build
+yarn start
+```
+
+#### Frontend
+
+1. Crie um arquivo `.env` na pasta `FrontEnd/` com:
+
+```env
+VITE_API_URL=https://seu-dominio-backend.com
+```
+
+2. Build do frontend:
+
+```bash
+cd FrontEnd
+yarn install
+yarn build
+```
+
+O build será gerado na pasta `dist/`, que você pode servir com qualquer servidor estático (Netlify, Vercel, etc).
+
+### Pontos Importantes para Deploy
+
+1. **CORS**: Certifique-se de que a variável `FRONTEND_URL` no backend aponte para o domínio do seu frontend em produção.
+
+2. **Banco de Dados**: Configure um banco MySQL em produção (ex: AWS RDS, PlanetScale, ou outro serviço).
+
+3. **Servir arquivos estáticos**: O backend já está configurado para servir imagens da pasta `public/images/`. Certifique-se de que essa pasta tenha as permissões corretas no servidor.
+
+4. **Variáveis de ambiente**: Nunca commite arquivos `.env` com credenciais reais. Use variáveis de ambiente do seu provedor de hospedagem.
+
+---
+
 ## Observações
 
-* O backend deve estar rodando para que o frontend funcione corretamente.
-* As imagens do feed e das receitas podem ser URLs externas ou base64.
+- O backend deve estar rodando para que o frontend funcione corretamente.
+- As imagens do feed e das receitas podem ser URLs externas ou base64.
+- Para desenvolvimento local, o frontend usa `http://localhost:5173` e o backend `http://localhost:3000` como padrão.
 
 ---
 

@@ -49,7 +49,7 @@ export const DateText = styled.span`
   font-size: ${({ theme }) => theme.font.size.textSm};
   color: ${({ theme }) => theme.font.colors.secondaryText};
   opacity: 0.8;
-  font-weight: ${({ theme }) => theme.font.weight.regular};
+  font-weight: ${({ theme }) => theme.font.weight.normal};
 
   @media (max-width: 540px) {
     font-size: ${({ theme }) => theme.font.size.textXs};
@@ -159,7 +159,7 @@ export const TextContent = styled.div`
 `;
 
 export const Text = styled.p`
-  font-weight: ${({ theme }) => theme.font.weight.regular};
+  font-weight: ${({ theme }) => theme.font.weight.normal};
   font-size: ${({ theme }) => theme.font.size.textBase};
   color: #000;
   line-height: 1.6;

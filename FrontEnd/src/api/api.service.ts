@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiURL } from "../env/index";
-import { defaultReturnNotToast, toastMessage } from "../Util/Toast";
+import { defaultReturnNotToast } from "../Util/Toast";
 
 const lastCalls = new Map<
   string,
