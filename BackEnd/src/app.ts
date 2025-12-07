@@ -12,11 +12,28 @@ dotenv.config();
 
 const app = express();
 
+// Configuração de CORS
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://delishare-app.netlify.app",
+  "http://localhost:5173",
+].filter(Boolean); // Remove valores undefined/null
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: (origin, callback) => {
+      // Permite requisições sem origin (mobile apps, Postman, etc)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
