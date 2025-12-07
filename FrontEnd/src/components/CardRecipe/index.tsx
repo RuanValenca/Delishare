@@ -1,4 +1,4 @@
-import { Clock, ForkKnife } from "lucide-react";
+import { Clock, Utensils } from "lucide-react";
 import * as S from "./styles";
 
 interface Props {
@@ -37,7 +37,7 @@ export default function CardRecipe({
           {time} min
         </S.Time>
         <S.Difficulty>
-          <ForkKnife size={18} />
+          <Utensils size={18} />
           {""} {difficulty}
         </S.Difficulty>
       </S.DescriptionBar>

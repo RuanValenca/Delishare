@@ -1,4 +1,4 @@
-import { X, Clock, ForkKnife } from "lucide-react";
+import { X, Clock, Utensils } from "lucide-react";
 import { useEffect } from "react";
 import * as S from "./styles";
 import type { ShowResult } from "../../api/Recipes/types/recipes.interface";
@@ -54,7 +54,7 @@ export default function RecipeModal({ recipe, isOpen, onClose }: Props) {
                   <span>{recipe.time} min</span>
                 </S.InfoItem>
                 <S.InfoItem>
-                  <ForkKnife size={20} />
+                  <Utensils size={20} />
                   <span>{recipe.difficulty}</span>
                 </S.InfoItem>
               </S.InfoRow>
@@ -90,7 +90,7 @@ export default function RecipeModal({ recipe, isOpen, onClose }: Props) {
                   <span>{recipe.time} min</span>
                 </S.InfoItem>
                 <S.InfoItem>
-                  <ForkKnife size={20} />
+                  <Utensils size={20} />
                   <span>{recipe.difficulty}</span>
                 </S.InfoItem>
               </S.InfoRow>
