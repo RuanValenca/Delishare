@@ -1,7 +1,6 @@
 import express from "express";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import cors from "cors";
 import path from "path";
 
 import loginRouter from "./routes/login";
@@ -15,24 +14,39 @@ if (process.env.NODE_ENV !== "production") {
 
 const app = express();
 
-// Configuração do CORS
-const corsOptions = {
-  origin: ["https://delishare-app.netlify.app"],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
+// ✅ CORS manual blindado pra Railway + Netlify
+app.use((req, res, next) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://delishare-app.netlify.app"
+  );
 
-app.use(cors(corsOptions));
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-app.options(/.*/, cors(corsOptions));
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
 
-// Logs e parsing
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+  // ✅ RESPONDE PREFLIGHT SEM BUGAR
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+
+  next();
+});
+
+// Logs
 app.use(morgan("dev"));
+
+// Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Arquivos estáticos
+// Estáticos
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 console.log("📁 Servindo arquivos estáticos de:", publicPath);
@@ -43,7 +57,7 @@ app.use("/user", usersRouter);
 app.use("/recipes", recipesRouter);
 app.use("/feed", feedRouter);
 
-// Rota 404
+// 404
 app.use((_req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
