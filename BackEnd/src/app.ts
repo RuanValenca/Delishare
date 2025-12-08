@@ -13,31 +13,7 @@ dotenv.config();
 
 const app = express();
 
-// CORS
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "https://delishare-app.netlify.app",
-  "http://localhost:5173",
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`CORS bloqueado para origem: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Content-Type"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  })
-);
+app.use(cors());
 
 // Logs e parsing
 app.use(morgan("dev"));
