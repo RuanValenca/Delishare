@@ -25,8 +25,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// ISSO AQUI É O PONTO QUE TÁ FALTANDO
-app.options("*", cors(corsOptions));
+app.options("/*", cors(corsOptions));
+
 // Logs e parsing
 app.use(morgan("dev"));
 app.use(express.json());
