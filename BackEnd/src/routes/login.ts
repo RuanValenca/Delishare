@@ -10,7 +10,7 @@ interface LoginProps {
 }
 
 const router = Router();
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -25,7 +25,6 @@ router.post("/login", async (req: Request, res: Response) => {
       [email, password]
     );
 
-    // Só um usuário deve voltar
     const user = result.rows[0];
 
     if (!user) {
@@ -48,24 +47,5 @@ router.post("/login", async (req: Request, res: Response) => {
     });
   }
 });
-
-// router.get("/POST", async (_req: Request, res: Response) => {
-//   try {
-//     const [rows] = await pool.query("SELECT name FROM users");
-
-//     res.json({
-//       data: rows,
-//       message: ["Usuários carregados com sucesso"],
-//       result: true,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       data: [],
-//       message: ["Algo deu errado!"],
-//       result: false,
-//     });
-//   }
-// });
 
 export default router;
