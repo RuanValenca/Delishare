@@ -14,23 +14,20 @@ if (process.env.NODE_ENV !== "production") {
 
 const app = express();
 
-// ✅ CORS manual blindado pra Railway + Netlify
+// ------------------------
+// ✅ CORS completo
+// ------------------------
 app.use((req, res, next) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://delishare-app.netlify.app"
-  );
-
+  const allowedOrigin = "https://delishare-app.netlify.app";
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Credentials", "true");
-
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,POST,PUT,PATCH,DELETE,OPTIONS"
   );
-
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
 
-  // ✅ RESPONDE PREFLIGHT SEM BUGAR
+  // Responde qualquer preflight OPTIONS
   if (req.method === "OPTIONS") {
     res.status(204).end();
     return;
@@ -39,25 +36,35 @@ app.use((req, res, next) => {
   next();
 });
 
+// ------------------------
 // Logs
+// ------------------------
 app.use(morgan("dev"));
 
+// ------------------------
 // Parsers
+// ------------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Estáticos
+// ------------------------
+// Arquivos estáticos
+// ------------------------
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 console.log("📁 Servindo arquivos estáticos de:", publicPath);
 
+// ------------------------
 // Rotas
-app.use("/", loginRouter);
+// ------------------------
+app.use("/login", loginRouter);
 app.use("/user", usersRouter);
 app.use("/recipes", recipesRouter);
 app.use("/feed", feedRouter);
 
-// 404
+// ------------------------
+// Rota 404
+// ------------------------
 app.use((_req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
