@@ -1,16 +1,14 @@
 import { Pool } from "pg";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const hasDatabaseUrl =
   process.env.DATABASE_URL &&
+  typeof process.env.DATABASE_URL === "string" &&
   process.env.DATABASE_URL.trim() !== "" &&
   process.env.DATABASE_URL.includes("postgresql://");
 
 const connectionConfig = hasDatabaseUrl
   ? {
-      connectionString: process.env.DATABASE_URL!,
+      connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
     }
   : {

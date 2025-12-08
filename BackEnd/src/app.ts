@@ -9,7 +9,10 @@ import usersRouter from "./routes/users";
 import recipesRouter from "./routes/recipes";
 import feedRouter from "./routes/feed";
 
-dotenv.config();
+// Carrega dotenv apenas em desenvolvimento
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 const app = express();
 
