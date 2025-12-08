@@ -25,7 +25,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.options("/*", cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // Logs e parsing
 app.use(morgan("dev"));
