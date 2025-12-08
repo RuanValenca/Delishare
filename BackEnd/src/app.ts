@@ -9,14 +9,21 @@ import usersRouter from "./routes/users";
 import recipesRouter from "./routes/recipes";
 import feedRouter from "./routes/feed";
 
-// Carrega dotenv apenas em desenvolvimento
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 
 const app = express();
 
-app.use(cors());
+// Configuração do CORS
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 
 // Logs e parsing
 app.use(morgan("dev"));
