@@ -16,13 +16,17 @@ if (process.env.NODE_ENV !== "production") {
 const app = express();
 
 // Configuração do CORS
-app.use(
-  cors({
-    origin: "https://delishare-app.netlify.app",
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: ["https://delishare-app.netlify.app"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
+app.use(cors(corsOptions));
+
+// ISSO AQUI É O PONTO QUE TÁ FALTANDO
+app.options("*", cors(corsOptions));
 // Logs e parsing
 app.use(morgan("dev"));
 app.use(express.json());
