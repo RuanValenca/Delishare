@@ -20,6 +20,16 @@ router.post("/", async (req: Request, res: Response) => {
         .json({ message: "Email e senha são obrigatórios.", result: false });
     }
 
+    // Verifica se o pool está conectado
+    if (!pool) {
+      console.error("❌ Pool de conexão não disponível");
+      return res.status(500).json({
+        data: null,
+        message: ["Erro de conexão com o banco de dados"],
+        result: false,
+      });
+    }
+
     const result = await pool.query<LoginProps>(
       'SELECT id, name, email, profile_photo as "profilePhoto", bio FROM users WHERE email = $1 AND password = $2',
       [email, password]
@@ -39,12 +49,19 @@ router.post("/", async (req: Request, res: Response) => {
       result: true,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      data: null,
-      message: ["Algo deu errado!"],
-      result: false,
-    });
+    console.error("❌ Erro na rota de login:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Erro desconhecido";
+    console.error("Detalhes do erro:", errorMessage);
+
+    // Garante que a resposta seja enviada mesmo em caso de erro
+    if (!res.headersSent) {
+      res.status(500).json({
+        data: null,
+        message: ["Algo deu errado!"],
+        result: false,
+      });
+    }
   }
 });
 

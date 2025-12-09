@@ -70,6 +70,18 @@ app.use("/user", usersRouter);
 app.use("/recipes", recipesRouter);
 app.use("/feed", feedRouter);
 
+// Middleware de tratamento de erros
+app.use((err: Error, _req: express.Request, res: express.Response) => {
+  console.error("❌ Erro não tratado:", err);
+  if (!res.headersSent) {
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: err.message,
+    });
+  }
+});
+
+// Rota 404
 app.use((_req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
