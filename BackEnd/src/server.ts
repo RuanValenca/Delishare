@@ -18,7 +18,7 @@ const startServer = async () => {
 
     const server = http.createServer(app);
 
-    server.listen(PORT, () => {
+    server.listen(Number(PORT), "0.0.0.0", () => {
       console.log(`Servidor rodando na porta ${PORT}`);
     });
   } catch (err) {
