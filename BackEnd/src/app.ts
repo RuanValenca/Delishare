@@ -9,62 +9,49 @@ import feedRouter from "./routes/feed";
 
 const app = express();
 
+const allowedOrigin = "https://delishare-app.netlify.app";
+
+app.use(
+  cors({
+    origin: allowedOrigin,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
+    credentials: true,
+  })
+);
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type,Authorization,X-Requested-With,Accept"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 app.use(cors());
-
-// const allowedOrigins = [
-//   "https://delishare-app.netlify.app",
-//   "http://localhost:5173",
-//   "http://localhost:3000",
-// ];
-
-// const corsOptions: cors.CorsOptions = {
-//   origin: (origin, callback) => {
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.includes(origin) || origin.endsWith(".netlify.app"))
-//       return callback(null, true);
-//     callback(new Error("Não permitido pelo CORS"));
-//   },
-//   credentials: true,
-//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//   allowedHeaders: [
-//     "Content-Type",
-//     "Authorization",
-//     "X-Requested-With",
-//     "Accept",
-//   ],
-//   exposedHeaders: ["Content-Type"],
-//   optionsSuccessStatus: 204,
-// };
-
-// app.use(cors(corsOptions));
-
 app.use(express.json());
-
-// Middlewares
 app.use(morgan("dev"));
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Arquivos estáticos
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
-// Health check
-app.get("/health", (_req: Request, res: Response) => {
-  res.json({
-    status: "ok",
-    message: "Servidor está rodando",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Rotas
 app.use("/login", loginRouter);
 app.use("/user", usersRouter);
 app.use("/recipes", recipesRouter);
 app.use("/feed", feedRouter);
 
-// Middleware de tratamento de erros
 app.use((err: Error, _req: Request, res: Response) => {
   console.error("❌ Erro não tratado:", err);
   if (!res.headersSent) {
@@ -78,7 +65,6 @@ app.use((err: Error, _req: Request, res: Response) => {
   }
 });
 
-// Rota 404
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
