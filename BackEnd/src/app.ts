@@ -17,7 +17,10 @@ app.use((req, res, next) => {
     "Strict-Transport-Security",
     "max-age=31536000; includeSubDomains"
   );
-  res.setHeader("Access-Control-Allow-Origin", "https://meusite.com");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://delishare-app.netlify.app"
+  );
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
