@@ -1,3 +1,10 @@
+import dotenv from "dotenv";
+
+// Carrega variáveis de ambiente antes de importar outros módulos
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
+
 import app from "./app";
 import http from "http";
 import { pool } from "./db";

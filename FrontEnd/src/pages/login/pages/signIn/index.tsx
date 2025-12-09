@@ -147,6 +147,14 @@ export default function SignIn() {
               bgColor={theme.colors.gradientBackground}
               font="small"
               width="fullWidth"
+              disabled={
+                createUser
+                  ? !formik.values.email ||
+                    !formik.values.password ||
+                    !formik.values.name ||
+                    !formik.values.bio
+                  : !formik.values.email || !formik.values.password
+              }
             >
               {createUser ? "Cadastrar" : "Entrar"}
             </BasicButton>
