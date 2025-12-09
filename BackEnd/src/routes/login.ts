@@ -10,26 +10,29 @@ interface LoginProps {
 }
 
 const router = Router();
+
+// Rota GET para testar
+router.get("/", (_req: Request, res: Response) => {
+  res.json({
+    message: "Rota de login ativa. Use POST para fazer login.",
+    result: true,
+  });
+});
+
+// Rota POST para login
 router.post("/", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
+    // Validação
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email e senha são obrigatórios.", result: false });
-    }
-
-    // Verifica se o pool está conectado
-    if (!pool) {
-      console.error("❌ Pool de conexão não disponível");
-      return res.status(500).json({
-        data: null,
-        message: ["Erro de conexão com o banco de dados"],
+      return res.status(400).json({
+        message: "Email e senha são obrigatórios.",
         result: false,
       });
     }
 
+    // Query no banco
     const result = await pool.query<LoginProps>(
       'SELECT id, name, email, profile_photo as "profilePhoto", bio FROM users WHERE email = $1 AND password = $2',
       [email, password]
@@ -38,9 +41,10 @@ router.post("/", async (req: Request, res: Response) => {
     const user = result.rows[0];
 
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Email ou senha inválidos.", result: false });
+      return res.status(401).json({
+        message: "Email ou senha inválidos.",
+        result: false,
+      });
     }
 
     return res.json({
@@ -50,11 +54,7 @@ router.post("/", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("❌ Erro na rota de login:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Erro desconhecido";
-    console.error("Detalhes do erro:", errorMessage);
 
-    // Garante que a resposta seja enviada mesmo em caso de erro
     if (!res.headersSent) {
       res.status(500).json({
         data: null,

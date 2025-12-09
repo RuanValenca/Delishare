@@ -1,7 +1,8 @@
 import { Pool } from "pg";
 
-// Validação mais robusta da DATABASE_URL
+// Validação da DATABASE_URL
 const databaseUrl = process.env.DATABASE_URL;
+
 const hasDatabaseUrl =
   databaseUrl &&
   typeof databaseUrl === "string" &&
@@ -9,12 +10,7 @@ const hasDatabaseUrl =
   (databaseUrl.includes("postgresql://") ||
     databaseUrl.includes("postgres://"));
 
-if (!hasDatabaseUrl && !process.env.DB_HOST) {
-  console.warn(
-    "⚠️  DATABASE_URL ou DB_HOST não configurados. Verifique as variáveis de ambiente."
-  );
-}
-
+// Configuração de conexão
 const connectionConfig = hasDatabaseUrl
   ? {
       connectionString: databaseUrl.trim(),
@@ -30,4 +26,16 @@ const connectionConfig = hasDatabaseUrl
         process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
     };
 
+// Aviso se não houver configuração
+if (!hasDatabaseUrl && !process.env.DB_HOST) {
+  console.warn(
+    "⚠️  DATABASE_URL ou DB_HOST não configurados. Usando valores padrão."
+  );
+}
+
 export const pool = new Pool(connectionConfig);
+
+// Tratamento de erros do pool
+pool.on("error", (err) => {
+  console.error("❌ Erro inesperado no pool de conexões:", err);
+});
