@@ -10,14 +10,53 @@ import feedRouter from "./routes/feed";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: ["https://delishare-app.netlify.app", "http://localhost:5173"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// Configuração de CORS
+const allowedOrigins = [
+  "https://delishare-app.netlify.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+// Configuração de CORS
+const corsOptions = {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) => {
+    // Permite requisições sem origem (mobile apps, Postman, etc) em desenvolvimento
+    if (!origin && process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+
+    // Permite qualquer subdomínio do Netlify
+    if (origin && origin.includes(".netlify.app")) {
+      return callback(null, true);
+    }
+
+    // Verifica se a origem está na lista de permitidas
+    if (origin && allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else if (origin) {
+      console.warn(`⚠️  CORS bloqueado para origem: ${origin}`);
+      callback(new Error("Não permitido pelo CORS"));
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+  ],
+  exposedHeaders: ["Content-Type"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.use(morgan("dev"));
 app.use(express.json());
