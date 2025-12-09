@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
 
-// Carrega variáveis de ambiente antes de importar outros módulos
-if (process.env.NODE_ENV !== "production") {
+// Carrega variáveis de ambiente apenas em desenvolvimento
+// Em produção, as variáveis devem vir do ambiente do servidor
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 

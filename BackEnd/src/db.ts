@@ -1,14 +1,23 @@
 import { Pool } from "pg";
 
+// Validação mais robusta da DATABASE_URL
+const databaseUrl = process.env.DATABASE_URL;
 const hasDatabaseUrl =
-  process.env.DATABASE_URL &&
-  typeof process.env.DATABASE_URL === "string" &&
-  process.env.DATABASE_URL.trim() !== "" &&
-  process.env.DATABASE_URL.includes("postgresql://");
+  databaseUrl &&
+  typeof databaseUrl === "string" &&
+  databaseUrl.trim() !== "" &&
+  (databaseUrl.includes("postgresql://") ||
+    databaseUrl.includes("postgres://"));
+
+if (!hasDatabaseUrl && !process.env.DB_HOST) {
+  console.warn(
+    "⚠️  DATABASE_URL ou DB_HOST não configurados. Verifique as variáveis de ambiente."
+  );
+}
 
 const connectionConfig = hasDatabaseUrl
   ? {
-      connectionString: process.env.DATABASE_URL,
+      connectionString: databaseUrl.trim(),
       ssl: { rejectUnauthorized: false },
     }
   : {
