@@ -3,15 +3,15 @@ import morgan from "morgan";
 import path from "path";
 import cors from "cors";
 import loginRouter from "./routes/login";
-// import usersRouter from "./routes/users";
-// import recipesRouter from "./routes/recipes";
-// import feedRouter from "./routes/feed";
+import usersRouter from "./routes/users";
+import recipesRouter from "./routes/recipes";
+import feedRouter from "./routes/feed";
 
 const app = express();
 
 app.use(
   cors({
-    origin: "https://delishare-app.netlify.app",
+    origin: ["https://delishare-app.netlify.app", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -46,9 +46,9 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/login", loginRouter);
-// app.use("/user", usersRouter);
-// app.use("/recipes", recipesRouter);
-// app.use("/feed", feedRouter);
+app.use("/user", usersRouter);
+app.use("/recipes", recipesRouter);
+app.use("/feed", feedRouter);
 
 app.use((err: Error, _req: Request, res: Response) => {
   console.error("❌ Erro não tratado:", err);

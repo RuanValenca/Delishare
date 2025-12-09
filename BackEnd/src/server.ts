@@ -7,10 +7,6 @@ import { pool } from "./db";
 
 const PORT = process.env.PORT || 3000;
 
-console.log("NODE_ENV:", process.env.NODE_ENV || "undefined");
-console.log("PORT:", PORT);
-console.log("DATABASE_URL:", process.env.DATABASE_URL ? "OK" : "UNDEFINED");
-
 const startServer = async () => {
   try {
     await pool.query("SELECT NOW()");
