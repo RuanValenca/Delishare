@@ -11,33 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Permite requisições sem origem em desenvolvimento (Postman, etc)
-      if (!origin) {
-        if (process.env.NODE_ENV !== "production") {
-          return callback(null, true);
-        }
-        return callback(new Error("Origem não permitida"));
-      }
-
-      // Permite a origem específica do Netlify
-      if (origin === "https://delishare-app.netlify.app") {
-        return callback(null, true);
-      }
-
-      // Permite qualquer subdomínio do Netlify
-      if (origin.includes(".netlify.app")) {
-        return callback(null, true);
-      }
-
-      // Permite localhost em desenvolvimento
-      if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-        return callback(null, true);
-      }
-
-      console.warn(`⚠️  CORS bloqueado para origem: ${origin}`);
-      callback(new Error("Não permitido pelo CORS"));
-    },
+    origin: "https://delishare-app.netlify.app",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -46,7 +20,6 @@ app.use(
       "Accept",
     ],
     credentials: true,
-    optionsSuccessStatus: 204,
   })
 );
 
