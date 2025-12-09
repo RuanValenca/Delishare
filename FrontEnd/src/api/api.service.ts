@@ -26,13 +26,8 @@ export const apiRequest = async (
     const headers = new Headers();
     let bodyRequest: BodyInit | null = null;
 
-    // Headers padrão que o backend espera
-    headers.set("Accept", "application/json");
-    headers.set("X-Requested-With", "XMLHttpRequest");
-
     if (type === "file") {
       bodyRequest = body as FormData;
-      // Para FormData, não define Content-Type - o browser define automaticamente com boundary
     } else {
       bodyRequest = body ? JSON.stringify(body) : null;
       headers.set("Content-Type", "application/json");
