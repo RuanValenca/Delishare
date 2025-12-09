@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 import morgan from "morgan";
 import path from "path";
 import cors from "cors";
-
 import loginRouter from "./routes/login";
 import usersRouter from "./routes/users";
 import recipesRouter from "./routes/recipes";
@@ -10,49 +9,36 @@ import feedRouter from "./routes/feed";
 
 const app = express();
 
-// Configuração de CORS
-const allowedOrigins = [
-  "https://delishare-app.netlify.app",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
+app.use(cors());
 
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    // Permite requisições sem origem em desenvolvimento (Postman, etc)
-    if (!origin) {
-      if (process.env.NODE_ENV !== "production") {
-        return callback(null, true);
-      }
-      return callback(new Error("Origem não permitida"));
-    }
+// const allowedOrigins = [
+//   "https://delishare-app.netlify.app",
+//   "http://localhost:5173",
+//   "http://localhost:3000",
+// ];
 
-    // Permite qualquer subdomínio do Netlify
-    if (origin.includes(".netlify.app")) {
-      return callback(null, true);
-    }
+// const corsOptions: cors.CorsOptions = {
+//   origin: (origin, callback) => {
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.includes(origin) || origin.endsWith(".netlify.app"))
+//       return callback(null, true);
+//     callback(new Error("Não permitido pelo CORS"));
+//   },
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//   allowedHeaders: [
+//     "Content-Type",
+//     "Authorization",
+//     "X-Requested-With",
+//     "Accept",
+//   ],
+//   exposedHeaders: ["Content-Type"],
+//   optionsSuccessStatus: 204,
+// };
 
-    // Verifica se está na lista de permitidas
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`⚠️  CORS bloqueado para origem: ${origin}`);
-      callback(new Error("Não permitido pelo CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-  ],
-  exposedHeaders: ["Content-Type"],
-  optionsSuccessStatus: 204,
-};
+// app.use(cors(corsOptions));
 
-app.use(cors(corsOptions));
+app.use(express.json());
 
 // Middlewares
 app.use(morgan("dev"));
