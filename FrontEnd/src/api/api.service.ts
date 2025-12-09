@@ -36,6 +36,7 @@ export const apiRequest = async (
     const requestOptions: RequestInit = {
       method,
       mode: "cors",
+      credentials: "include",
       headers,
       body: bodyRequest,
     };

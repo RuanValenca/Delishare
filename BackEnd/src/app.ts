@@ -23,23 +23,6 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://delishare-app.netlify.app"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type,Authorization,X-Requested-With,Accept"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
-app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
