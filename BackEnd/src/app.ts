@@ -9,16 +9,19 @@ import loginRouter from "./routes/login";
 
 const app = express();
 
-app.use(cors({}));
-// origin: "https://delishare-app.netlify.app",
-// methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-// allowedHeaders: [
-//   "Content-Type",
-//   "Authorization",
-//   "X-Requested-With",
-//   "Accept",
-// ],
-// credentials: true,
+app.use(
+  cors({
+    origin: "https://delishare-app.netlify.app",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
+    credentials: true,
+  })
+);
 
 // Middlewares na ordem correta
 app.use(morgan("dev")); // Logs primeiro
