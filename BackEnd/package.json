@@ -16,7 +16,8 @@
   },
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
-    "build": "npx tsc",
+    "build": "yarn tsc",
+    "tsc": "tsc",
     "start": "node dist/server.js"
   },
   "devDependencies": {
