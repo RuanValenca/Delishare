@@ -4,6 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.10.9",
     "@types/multer": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -22,11 +27,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.5",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^24.10.0",
-    "@types/pg": "^8.10.9",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "eslint": "^9.39.1",

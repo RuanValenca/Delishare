@@ -41,6 +41,6 @@ if (!hasDatabaseUrl && !process.env.DB_HOST) {
 export const pool = new Pool(connectionConfig);
 
 // Tratamento de erros do pool
-pool.on("error", (err) => {
+pool.on("error", (err: Error) => {
   console.error("❌ Erro inesperado no pool de conexões:", err);
 });
