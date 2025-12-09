@@ -1,39 +1,39 @@
 import dotenv from "dotenv";
+dotenv.config();
 
-// Carrega variáveis de ambiente apenas em desenvolvimento
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
-
-import app from "./app";
 import http from "http";
+import app from "./app";
 import { pool } from "./db";
 
 const PORT = process.env.PORT || 3000;
 
-// Testa conexão com o banco
-pool
-  .query("SELECT NOW()")
-  .then(() => {
-    console.log("✅ Banco de dados conectado");
-  })
-  .catch((err) => {
-    console.error("❌ Erro ao conectar no banco de dados:", err);
-  });
+console.log("NODE_ENV:", process.env.NODE_ENV || "undefined");
+console.log("PORT:", PORT);
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "OK" : "UNDEFINED");
 
-const server = http.createServer(app);
+const startServer = async () => {
+  try {
+    await pool.query("SELECT NOW()");
+    console.log("Banco conectado");
 
-server.listen(PORT, () => {
-  console.log(`✅ Servidor rodando na porta ${PORT}`);
-  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || "development"}`);
-});
+    const server = http.createServer(app);
 
-// Tratamento de erros não capturados
+    server.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Falha ao conectar no banco:", err);
+    process.exit(1);
+  }
+};
+
 process.on("unhandledRejection", (err) => {
-  console.error("❌ Erro não tratado:", err);
+  console.error("Erro não tratado:", err);
 });
 
 process.on("uncaughtException", (err) => {
-  console.error("❌ Exceção não capturada:", err);
+  console.error("Exceção não tratada:", err);
   process.exit(1);
 });
+
+startServer();

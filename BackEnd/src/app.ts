@@ -1,41 +1,49 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import morgan from "morgan";
 import path from "path";
 import cors from "cors";
 import loginRouter from "./routes/login";
-import usersRouter from "./routes/users";
-import recipesRouter from "./routes/recipes";
-import feedRouter from "./routes/feed";
+// import usersRouter from "./routes/users";
+// import recipesRouter from "./routes/recipes";
+// import feedRouter from "./routes/feed";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "https://delishare-app.netlify.app",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors({}));
+// origin: "https://delishare-app.netlify.app",
+// methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+// allowedHeaders: [
+//   "Content-Type",
+//   "Authorization",
+//   "X-Requested-With",
+//   "Accept",
+// ],
+// credentials: true,
 
+// Middlewares na ordem correta
+app.use(morgan("dev")); // Logs primeiro
 app.use(express.json());
-app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
-app.use("/login", loginRouter);
-app.use("/user", usersRouter);
-app.use("/recipes", recipesRouter);
-app.use("/feed", feedRouter);
+// Log para debug
+app.use((req, res, next) => {
+  try {
+    next();
+  } catch (e) {
+    console.error("Erro antes das rotas:", e);
+    res.status(500).json({ error: "Quebra antes do router" });
+  }
+});
 
-app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
+app.use("/login", loginRouter);
+// app.use("/user", usersRouter);
+// app.use("/recipes", recipesRouter);
+// app.use("/feed", feedRouter);
+
+app.use((err: Error, _req: Request, res: Response) => {
   console.error("❌ Erro não tratado:", err);
   if (!res.headersSent) {
     res.status(500).json({
@@ -46,7 +54,6 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
           : err.message,
     });
   }
-  next();
 });
 
 app.use((_req: Request, res: Response) => {

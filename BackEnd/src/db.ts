@@ -1,5 +1,10 @@
 import { Pool } from "pg";
 
+console.log(
+  "DATABASE_URL NO DB.TS:",
+  process.env.DATABASE_URL ? "OK" : "UNDEFINED"
+);
+
 // Validação da DATABASE_URL
 const databaseUrl = process.env.DATABASE_URL;
 
