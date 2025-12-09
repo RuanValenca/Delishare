@@ -38,6 +38,10 @@ app.use((req, res, next) => {
   }
 });
 
+app.get("/", (_req, res) => {
+  res.status(200).send("OK");
+});
+
 app.use("/login", loginRouter);
 // app.use("/user", usersRouter);
 // app.use("/recipes", recipesRouter);
