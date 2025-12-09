@@ -9,11 +9,9 @@ import feedRouter from "./routes/feed";
 
 const app = express();
 
-const allowedOrigin = "https://delishare-app.netlify.app";
-
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: "https://delishare-app.netlify.app",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -26,7 +24,10 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://delishare-app.netlify.app"
+  );
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,POST,PUT,PATCH,DELETE,OPTIONS"
@@ -38,7 +39,6 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
   next();
 });
-
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
