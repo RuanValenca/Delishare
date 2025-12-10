@@ -20,7 +20,8 @@ export const Overlay = styled.div`
   }
 
   @media (max-width: 540px) {
-    padding: 0;
+    padding: 0.5rem;
+    align-items: stretch;
   }
 `;
 
@@ -46,9 +47,10 @@ export const ModalContainer = styled.div<{ hasImage: boolean }>`
 
   @media (max-width: 540px) {
     width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
+    height: calc(100vh - 1rem);
+    max-height: calc(100vh - 1rem);
+    border-radius: 12px;
+    margin: 0.5rem;
   }
 
   @keyframes slideIn {

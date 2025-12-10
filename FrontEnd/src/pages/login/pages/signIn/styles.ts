@@ -74,8 +74,15 @@ export const Header = styled.header`
   animation: ${fadeIn} 0.5s ease;
 `;
 
+export const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+`;
+
 export const IconDiv = styled.div`
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,6 +92,7 @@ export const IconDiv = styled.div`
   background: ${({ theme }) => theme.colors.gradientBackground};
   animation: ${scaleIn} 0.5s ease;
   transition: transform 0.3s ease;
+  flex-shrink: 0;
 
   &:hover {
     transform: scale(1.1) rotate(5deg);
@@ -97,6 +105,9 @@ export const H1 = styled.h1`
   color: transparent;
   font-weight: ${({ theme }) => theme.font.weight.bold};
   animation: ${slideIn} 0.6s ease;
+  margin: 0;
+  display: flex;
+  align-items: center;
 `;
 
 export const H2 = styled.h2`

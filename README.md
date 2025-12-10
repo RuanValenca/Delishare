@@ -30,7 +30,7 @@ Delishare/
 
 - Node.js
 - Express
-- MySQL2
+- PostgreSQL (Supabase)
 - TypeScript
 - API REST
 
@@ -50,7 +50,7 @@ Delishare/
 
 - Node.js >= 18
 - Yarn
-- MySQL
+- PostgreSQL (ou Supabase)
 
 ---
 
@@ -70,16 +70,22 @@ cd backend
 yarn install
 ```
 
-3. Configure o `.env` com as credenciais do MySQL (veja exemplo abaixo):
+3. Configure o `.env` com as credenciais do PostgreSQL/Supabase (veja exemplo abaixo):
 
    ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=sua_senha
-   DB_NAME=delishare
-   DB_PORT=3306
+   # Opção 1: Use DATABASE_URL (recomendado para Supabase)
+   DATABASE_URL=postgresql://usuario:senha@host:porta/database
+
+   # Opção 2: Ou use as variáveis individuais
+   # DB_HOST=localhost
+   # DB_USER=postgres
+   # DB_PASSWORD=sua_senha
+   # DB_NAME=delishare
+   # DB_PORT=5432
+   # DB_SSL=false
+
    PORT=3000
-   FRONTEND_URL=http://localhost:5173
+   BACKEND_URL=http://localhost:3000
    ```
 
 4. Inicie o servidor:
@@ -130,16 +136,23 @@ Antes de fazer deploy, você precisa configurar as variáveis de ambiente para p
 
 #### Backend
 
-1. Crie um arquivo `.env` na pasta `backend/` com as seguintes variáveis:
+1. Configure as variáveis de ambiente no seu serviço de hospedagem (Railway, Vercel, etc):
 
 ```env
-DB_HOST=seu_host_mysql
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-DB_NAME=delishare
-DB_PORT=3306
+# Opção 1: Use DATABASE_URL (recomendado para Supabase)
+DATABASE_URL=postgresql://usuario:senha@host:porta/database
+
+# Opção 2: Ou use as variáveis individuais
+# DB_HOST=seu_host_postgres
+# DB_USER=seu_usuario
+# DB_PASSWORD=sua_senha
+# DB_NAME=delishare
+# DB_PORT=5432
+# DB_SSL=true
+
 PORT=3000
-FRONTEND_URL=https://seu-dominio-frontend.com
+BACKEND_URL=https://seu-dominio-backend.com
+NODE_ENV=production
 ```
 
 2. Build do backend:
@@ -173,7 +186,7 @@ O build será gerado na pasta `dist/`, que você pode servir com qualquer servid
 
 1. **CORS**: Certifique-se de que a variável `FRONTEND_URL` no backend aponte para o domínio do seu frontend em produção.
 
-2. **Banco de Dados**: Configure um banco MySQL em produção (ex: AWS RDS, PlanetScale, ou outro serviço).
+2. **Banco de Dados**: Configure um banco PostgreSQL em produção (ex: Supabase, AWS RDS, Railway, ou outro serviço).
 
 3. **Servir arquivos estáticos**: O backend já está configurado para servir imagens da pasta `public/images/`. Certifique-se de que essa pasta tenha as permissões corretas no servidor.
 

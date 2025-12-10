@@ -45,10 +45,12 @@ export default function SignIn() {
   return (
     <S.Container isCreate={createUser}>
       <S.Header>
-        <S.IconDiv>
-          <ChefHat color="white" />
-        </S.IconDiv>
-        <S.H1>Bem-vindo!</S.H1>
+        <S.TitleContainer>
+          <S.IconDiv>
+            <ChefHat color="white" />
+          </S.IconDiv>
+          <S.H1>Bem-vindo!</S.H1>
+        </S.TitleContainer>
         <S.H2>
           {createUser
             ? "Crie uma conta para compartilhar e descobrir novas receitas!"
@@ -65,7 +67,7 @@ export default function SignIn() {
           }
 
           const response = await create({
-            bio: values.bio,
+            bio: values.bio || "",
             email: values.email,
             isCreate: true,
             name: values.name,
@@ -151,8 +153,7 @@ export default function SignIn() {
                 createUser
                   ? !formik.values.email ||
                     !formik.values.password ||
-                    !formik.values.name ||
-                    !formik.values.bio
+                    !formik.values.name
                   : !formik.values.email || !formik.values.password
               }
             >

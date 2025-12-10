@@ -444,27 +444,37 @@ export default function Recipes() {
                   />
                 </S.CreateFormContainer>
               ) : (
-                <S.Results>
-                  {filteredList.map((recipe) => (
-                    <div key={recipe.id}>
-                      <CardRecipe
-                        difficulty={recipe.difficulty}
-                        meal={recipe.meal}
-                        time={recipe.time}
-                        img={
-                          recipe.img && recipe.img.trim() !== ""
-                            ? { src: recipe.img, alt: recipe.recipeName }
-                            : undefined
-                        }
-                        name={recipe.recipeName}
-                        onClick={() => {
-                          setSelectedRecipe(recipe);
-                          setIsModalOpen(true);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </S.Results>
+                <>
+                  {filteredList.length > 0 ? (
+                    <S.Results>
+                      {filteredList.map((recipe) => (
+                        <div key={recipe.id}>
+                          <CardRecipe
+                            difficulty={recipe.difficulty}
+                            meal={recipe.meal}
+                            time={recipe.time}
+                            img={
+                              recipe.img && recipe.img.trim() !== ""
+                                ? { src: recipe.img, alt: recipe.recipeName }
+                                : undefined
+                            }
+                            name={recipe.recipeName}
+                            onClick={() => {
+                              setSelectedRecipe(recipe);
+                              setIsModalOpen(true);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </S.Results>
+                  ) : (
+                    <S.EmptyState>
+                      <S.EmptyMessage>
+                        Nenhuma receita encontrada. Que tal criar a primeira?
+                      </S.EmptyMessage>
+                    </S.EmptyState>
+                  )}
+                </>
               )}
 
               <RecipeModal

@@ -109,7 +109,7 @@ export default function Footer() {
           © {new Date().getFullYear()} Delishare. Todos os direitos reservados.
         </S.Copyright>
         <S.Credits>
-          Desenvolvido com
+          Desenvolvido por
           <S.AuthorName>Ruan Valença</S.AuthorName>
         </S.Credits>
       </S.BottomSection>

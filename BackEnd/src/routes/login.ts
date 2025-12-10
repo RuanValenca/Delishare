@@ -32,7 +32,6 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
 
-    // Query no banco
     const result = await pool.query<LoginProps>(
       'SELECT id, name, email, profile_photo as "profilePhoto", bio FROM users WHERE email = $1 AND password = $2',
       [email, password]

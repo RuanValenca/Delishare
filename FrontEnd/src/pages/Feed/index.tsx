@@ -21,16 +21,24 @@ export default function Feed() {
   return (
     <S.Container>
       <FeedCreate setList={setList} />
-      {list.map((item, index) => (
-        <CardPost
-          key={index}
-          img={item.imageUrl}
-          pfp={item.pfp}
-          createdAt={item.createdAt}
-          userName={item.userName}
-          textContent={item.description}
-        />
-      ))}
+      {list.length > 0 ? (
+        list.map((item, index) => (
+          <CardPost
+            key={index}
+            img={item.imageUrl}
+            pfp={item.pfp}
+            createdAt={item.createdAt}
+            userName={item.userName}
+            textContent={item.description}
+          />
+        ))
+      ) : (
+        <S.EmptyState>
+          <S.EmptyMessage>
+            Nenhum post encontrado. Seja o primeiro a compartilhar algo!
+          </S.EmptyMessage>
+        </S.EmptyState>
+      )}
     </S.Container>
   );
 }
