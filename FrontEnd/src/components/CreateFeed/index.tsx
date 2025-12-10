@@ -7,7 +7,7 @@ import { useTheme } from "styled-components";
 import BasicButton from "../BasicButton";
 import { ImagePlus, Send, User, Loader2 } from "lucide-react";
 import { handleCreate, handleGetList } from "../../api/Feed/feed.service";
-import { fileToBase64 } from "../../Util/convertImage";
+import { compressImageToBase64 } from "../../Util/convertImage";
 import type { ShowResult } from "../../api/Feed/types/feed.interface";
 import { successToast, errorToast } from "../Toast";
 
@@ -40,10 +40,15 @@ export default function FeedCreate(props: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const base64 = await fileToBase64(file);
-
-    setImageFile(base64);
-    setPreview(base64);
+    try {
+      // Comprime a imagem antes de converter para base64
+      const base64 = await compressImageToBase64(file);
+      setImageFile(base64);
+      setPreview(base64);
+    } catch (error) {
+      console.error("Erro ao processar imagem:", error);
+      errorToast("Erro ao processar imagem. Tente novamente.");
+    }
   };
 
   return (
@@ -85,7 +90,7 @@ export default function FeedCreate(props: Props) {
             }
           } catch (error) {
             console.error("Erro ao postar:", error);
-            errorToast("Erro ao publicar post. Tente novamente.");
+            errorToast("Não foi possível publicar seu post. Verifique sua conexão e tente novamente.");
           } finally {
             setIsPosting(false);
           }

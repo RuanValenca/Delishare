@@ -109,19 +109,45 @@ router.post(
         .slice(0, 19)
         .replace("T", " ");
 
-      if (
-        !userId ||
-        !recipeName ||
-        !description ||
-        !instructions ||
-        !createdAt ||
-        !time ||
-        !meal ||
-        !difficulty
-      ) {
+      const missingFields: string[] = [];
+
+      if (!recipeName || recipeName.trim() === "") {
+        missingFields.push("nome da receita");
+      }
+      if (!description || description.trim() === "") {
+        missingFields.push("descrição");
+      }
+      if (!instructions || instructions.trim() === "") {
+        missingFields.push("instruções de preparo");
+      }
+      if (!time || time.trim() === "") {
+        missingFields.push("tempo de preparo");
+      }
+      if (!meal || meal.trim() === "") {
+        missingFields.push("refeição");
+      }
+      if (!difficulty || difficulty.trim() === "") {
+        missingFields.push("dificuldade");
+      }
+      if (!userId) {
         return res.status(400).json({
           data: null,
-          message: ["Todos os campos são obrigatórios"],
+          message: ["Erro de autenticação. Por favor, faça login novamente"],
+          result: false,
+        });
+      }
+
+      if (missingFields.length > 0) {
+        const fieldsText =
+          missingFields.length === 1
+            ? missingFields[0]
+            : missingFields.slice(0, -1).join(", ") +
+              " e " +
+              missingFields[missingFields.length - 1];
+
+        return res.status(400).json({
+          data: null,
+          message: [`Por favor, preencha o campo: ${fieldsText}`],
           result: false,
         });
       }

@@ -25,9 +25,16 @@ router.post("/", async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Validação
-    if (!email || !password) {
+    if (!email || email.trim() === "") {
       return res.status(400).json({
-        message: "Email e senha são obrigatórios.",
+        message: "Por favor, informe seu email",
+        result: false,
+      });
+    }
+
+    if (!password || password.trim() === "") {
+      return res.status(400).json({
+        message: "Por favor, informe sua senha",
         result: false,
       });
     }

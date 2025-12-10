@@ -31,15 +31,16 @@ export default function CardRecipe({
       </S.Background>
       <S.DescriptionBar>
         <S.Name>{name}</S.Name>
-        <S.Time>
-          <Clock size={18} />
-          {""}
-          {time} min
-        </S.Time>
-        <S.Difficulty>
-          <Utensils size={18} />
-          {""} {difficulty}
-        </S.Difficulty>
+        <S.InfoWrapper>
+          <S.Time>
+            <Clock size={18} />
+            {time} min
+          </S.Time>
+          <S.Difficulty>
+            <Utensils size={18} />
+            {difficulty}
+          </S.Difficulty>
+        </S.InfoWrapper>
       </S.DescriptionBar>
     </S.Container>
   );

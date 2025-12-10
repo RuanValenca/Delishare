@@ -19,6 +19,7 @@ import type { ShowResult } from "../../api/Recipes/types/recipes.interface";
 import { handleCreate, handleGetList } from "../../api/Recipes/recipes.service";
 import { DelishareContext } from "../../contexts/delishareContext";
 import { useSearchParams } from "react-router-dom";
+import { compressImage } from "../../Util/convertImage";
 
 const initialValues = {
   createdAt: new Date().toISOString().slice(0, 19).replace("T", " "),
@@ -173,12 +174,21 @@ export default function Recipes() {
         enableReinitialize
       >
         {({ values, handleChange, resetForm }) => {
-          const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            setImageFile(file);
-            setPreview(URL.createObjectURL(file));
+            try {
+              // Comprime a imagem antes de salvar
+              const compressedFile = await compressImage(file);
+              setImageFile(compressedFile);
+              setPreview(URL.createObjectURL(compressedFile));
+            } catch (error) {
+              console.error("Erro ao processar imagem:", error);
+              // Em caso de erro, usa o arquivo original
+              setImageFile(file);
+              setPreview(URL.createObjectURL(file));
+            }
           };
 
           const handleSearch = (termOverride?: string) => {

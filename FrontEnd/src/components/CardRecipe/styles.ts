@@ -66,43 +66,74 @@ export const Img = styled.img`
 `;
 
 export const DescriptionBar = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem;
   height: 30%;
-  gap: 0.5rem;
   background: ${({ theme }) => theme.colors.background};
+  justify-content: space-between;
+
+  @media (max-width: 540px) {
+    padding: 0.625rem 0.875rem;
+  }
 `;
 
 export const Name = styled.h3`
-  grid-column: span 2;
   color: ${({ theme }) => theme.font.colors.DarkBlue};
   font-weight: ${({ theme }) => theme.font.weight.semibold};
-  margin-bottom: 0;
+  margin: 0;
+  font-size: ${({ theme }) => theme.font.size.textBase};
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-height: 2.8em;
 
   @media (max-width: 540px) {
-    margin-bottom: 0.75rem;
+    font-size: ${({ theme }) => theme.font.size.textSm};
+    -webkit-line-clamp: 2;
+    min-height: 2.6em;
   }
+`;
 
-  @media (max-width: 425px) {
-    margin-bottom: 1rem;
+const InfoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+
+  @media (max-width: 540px) {
+    margin-top: 0.375rem;
+    gap: 0.5rem;
   }
 `;
 
 const InfoText = styled.p`
-  position: absolute;
-  bottom: 0;
-  padding: 0.5rem 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   color: ${({ theme }) => theme.font.colors.secondaryText};
   font-weight: ${({ theme }) => theme.font.weight.normal};
   font-size: ${({ theme }) => theme.font.size.textSm};
+  margin: 0;
+  white-space: nowrap;
+
+  @media (max-width: 540px) {
+    font-size: ${({ theme }) => theme.font.size.textXs};
+    gap: 0.25rem;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
 `;
 
 export const Time = styled(InfoText)``;
-export const Difficulty = styled(InfoText)`
-  justify-self: end;
-`;
+export const Difficulty = styled(InfoText)``;
+
+export const InfoWrapper = styled(InfoContainer)``;

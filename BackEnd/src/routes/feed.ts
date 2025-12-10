@@ -119,10 +119,18 @@ router.post(
       const { userId, description, imageUrl, createdAt }: FeedCreateBody =
         req.body;
 
-      if (!userId || !description) {
+      if (!description || description.trim() === "") {
         return res.status(400).json({
           data: null,
-          message: ["userId e description são obrigatórios"],
+          message: ["Por favor, escreva algo no seu post"],
+          result: false,
+        });
+      }
+
+      if (!userId) {
+        return res.status(400).json({
+          data: null,
+          message: ["Erro de autenticação. Por favor, faça login novamente"],
           result: false,
         });
       }
@@ -160,10 +168,26 @@ router.post(
     try {
       const { postId, userId, text, createdAt }: CommentCreateBody = req.body;
 
-      if (!postId || !userId || !text) {
+      if (!text || text.trim() === "") {
         return res.status(400).json({
           data: null,
-          message: ["postId, userId e text são obrigatórios"],
+          message: ["Por favor, escreva um comentário"],
+          result: false,
+        });
+      }
+
+      if (!userId) {
+        return res.status(400).json({
+          data: null,
+          message: ["Erro de autenticação. Por favor, faça login novamente"],
+          result: false,
+        });
+      }
+
+      if (!postId) {
+        return res.status(400).json({
+          data: null,
+          message: ["Erro ao identificar o post. Tente novamente"],
           result: false,
         });
       }
@@ -177,7 +201,7 @@ router.post(
       if (postCheck.rows.length === 0) {
         return res.status(404).json({
           data: null,
-          message: ["Post não encontrado"],
+          message: ["Este post não existe mais ou foi removido"],
           result: false,
         });
       }
