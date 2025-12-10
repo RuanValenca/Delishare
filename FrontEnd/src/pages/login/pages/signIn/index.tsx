@@ -10,7 +10,7 @@ import { useDelishare } from "../../../../hooks/useProvider";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { handleCreateUpdate } from "../../../../api/User/user.service";
-import { TextAlignJustify, User } from "phosphor-react";
+import { User } from "phosphor-react";
 
 export default function SignIn() {
   const theme = useTheme();
@@ -120,22 +120,6 @@ export default function SignIn() {
                   widthSize="fullWidth"
                   label="Nome de Usuário"
                   name="name"
-                  type="string"
-                  onChange={formik.handleChange}
-                />
-
-                <FieldFormik
-                  leftIcon={
-                    <TextAlignJustify
-                      color={theme.colors.blueSchema.default}
-                      size={14}
-                    />
-                  }
-                  labelPosition="top"
-                  heightSize="xxsmall"
-                  widthSize="fullWidth"
-                  label="Descrição"
-                  name="bio"
                   type="string"
                   onChange={formik.handleChange}
                 />

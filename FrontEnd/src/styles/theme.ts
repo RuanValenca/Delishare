@@ -12,7 +12,7 @@ const theme = {
     },
     gradientBackgroundLight: "linear-gradient(150deg, #BAE6FD, #DCFCE7)",
     gradientBackground: "linear-gradient(to right, #0EA5E9, #4ADE80)",
-    background: "#FFFFFF",
+    background: "#FEFCF9",
     foreground: "#0F172A",
     primary: "#0EA5E9",
     secondary: "#4ADE80",

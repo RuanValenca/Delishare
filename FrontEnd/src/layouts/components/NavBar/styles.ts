@@ -23,11 +23,17 @@ export const Container = styled.nav`
   }
 `;
 
-export const Name = styled.h1``;
+export const Name = styled.h1`
+  display: flex;
+  align-items: center;
+  margin: 0;
+  line-height: 1;
+`;
 
 export const DivName = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 1rem;
 
   @media (max-width: 768px) {

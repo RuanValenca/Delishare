@@ -76,8 +76,62 @@ export default function Recipes() {
     const response = await handleGetList();
 
     if (response.result) {
-      setList(response.data);
-      setFilteredList(applyOrder(response.data));
+      // Se não houver dados, adiciona receitas mockadas
+      if (response.data.length === 0) {
+        const mockRecipes = [
+          {
+            id: 1,
+            userId: 1,
+            recipeName: "Salada Mediterrânea com Queijo Feta",
+            description:
+              "Uma salada refrescante e nutritiva inspirada na culinária mediterrânea. Combina vegetais frescos, queijo feta cremoso e um toque de azeite de oliva extra virgem. Perfeita para um jantar leve e saudável.",
+            meal: "Jantar" as const,
+            difficulty: "Fácil" as const,
+            time: "15",
+            img: "/salad.jpg",
+            instructions:
+              "1. Lave e corte os tomates cereja ao meio\n2. Corte o pepino em cubos médios\n3. Corte a cebola roxa em fatias finas\n4. Lave e seque as folhas de rúcula\n5. Em uma tigela grande, misture todos os vegetais\n6. Adicione o queijo feta cortado em cubos\n7. Tempere com azeite de oliva, sal, pimenta e orégano\n8. Misture delicadamente e sirva imediatamente",
+            createdAt: new Date(
+              Date.now() - 2 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+          {
+            id: 2,
+            userId: 2,
+            recipeName: "Macarrão ao Molho Pesto Cremoso",
+            description:
+              "Um prato italiano clássico com um toque cremoso. O pesto tradicional de manjericão é combinado com creme de leite para criar um molho sedoso e saboroso. Ideal para um almoço especial ou jantar romântico.",
+            meal: "Almoço" as const,
+            difficulty: "Médio" as const,
+            time: "30",
+            img: "/creamyPesto.jpg",
+            instructions:
+              "1. Cozinhe o macarrão conforme as instruções da embalagem até ficar al dente\n2. Enquanto isso, prepare o pesto: bata no liquidificador manjericão, alho, pinoli, azeite e queijo parmesão\n3. Em uma panela, aqueça o creme de leite em fogo médio\n4. Adicione o pesto ao creme de leite e misture bem\n5. Escorra o macarrão e reserve um pouco da água do cozimento\n6. Adicione o macarrão à panela com o molho\n7. Se necessário, adicione um pouco da água do cozimento para ajustar a consistência\n8. Misture bem, finalize com queijo parmesão ralado e sirva",
+            createdAt: new Date(
+              Date.now() - 1 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+          {
+            id: 3,
+            userId: 3,
+            recipeName: "Torrada de Abacate com Ovos Pochê",
+            description:
+              "Um café da manhã nutritivo e delicioso que combina a cremosidade do abacate com a suavidade dos ovos pochê. Uma refeição completa que fornece energia para começar o dia com disposição.",
+            meal: "Café" as const,
+            difficulty: "Médio" as const,
+            time: "15",
+            img: "/avocadoToast.jpg",
+            instructions:
+              "1. Toaste o pão até ficar dourado e crocante\n2. Corte o abacate ao meio, remova o caroço e retire a polpa\n3. Amasse o abacate com um garfo, adicionando suco de limão, sal e pimenta\n4. Em uma panela com água fervente, adicione vinagre\n5. Crie um redemoinho na água e quebre o ovo no centro\n6. Cozinhe por 3-4 minutos até a clara estar firme e a gema ainda cremosa\n7. Espalhe o abacate amassado sobre a torrada\n8. Coloque o ovo pochê por cima\n9. Tempere com sal, pimenta e sementes de gergelim (opcional)\n10. Sirva imediatamente",
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        setList(mockRecipes);
+        setFilteredList(applyOrder(mockRecipes));
+      } else {
+        setList(response.data);
+        setFilteredList(applyOrder(response.data));
+      }
     }
   }, [applyOrder]);
 
