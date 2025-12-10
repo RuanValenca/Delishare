@@ -29,7 +29,7 @@ export default function Footer() {
             <S.Badge>React</S.Badge>
             <S.Badge>TypeScript</S.Badge>
             <S.Badge>Node.js</S.Badge>
-            <S.Badge>MySQL</S.Badge>
+            <S.Badge>PostgreSQL</S.Badge>
           </S.TechBadges>
         </S.BrandSection>
 
@@ -65,7 +65,7 @@ export default function Footer() {
               </S.InfoItem>
               <S.InfoItem>
                 <Code size={16} />
-                <span>MySQL</span>
+                <span>PostgreSQL</span>
               </S.InfoItem>
               <S.InfoItem>
                 <Code size={16} />
