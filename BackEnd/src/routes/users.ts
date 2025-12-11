@@ -101,6 +101,12 @@ router.post(
             [imagePath, newUserId]
           );
         }
+
+        res.json({
+          data: [""],
+          message: ["Usuário criado com sucesso"],
+          result: true,
+        });
       } else {
         const existingUser = await pool.query<{ profile_photo: string }>(
           `SELECT profile_photo FROM users WHERE id = $1`,
@@ -127,38 +133,15 @@ router.post(
           `,
           [name, email, password, finalImagePath, bio, userId]
         );
-      }
 
-      res.json({
-        data: [""],
-        message: [
-          isCreate
-            ? "Usuário criado com sucesso"
-            : "Usuário atualizado com sucesso",
-        ],
-        result: true,
-      });
-    } catch (error) {
-      console.error(error);
-
-      if (
-        isCreate &&
-        error &&
-        typeof error === "object" &&
-        "code" in error &&
-        error.code === "23505" &&
-        "constraint" in error &&
-        error.constraint === "users_email_key"
-      ) {
-        return res.status(400).json({
+        res.json({
           data: [""],
-          message: [
-            "Este email já está cadastrado. Tente fazer login ou use outro email.",
-          ],
-          result: false,
+          message: ["Usuário atualizado com sucesso"],
+          result: true,
         });
       }
-
+    } catch (error) {
+      console.error(error);
       res.status(500).json({
         data: [""],
         message: ["Algo deu errado!"],
