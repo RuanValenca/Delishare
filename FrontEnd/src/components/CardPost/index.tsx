@@ -138,7 +138,7 @@ export default function CardPost({
               {localComments.map((comment) => (
                 <S.CommentItem key={comment.id}>
                   <S.CommentHeader>
-                    {comment.pfp ? (
+                    {comment.pfp && comment.pfp.trim() !== "" ? (
                       <S.CommentPhoto>
                         <img src={comment.pfp} alt="profile" />
                       </S.CommentPhoto>

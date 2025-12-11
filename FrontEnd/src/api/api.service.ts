@@ -7,6 +7,13 @@ const lastCalls = new Map<
   { timestamp: number; promise: Promise<any> }
 >();
 
+// Função para controlar o loading global
+let setLoadingGlobal: ((loading: boolean) => void) | null = null;
+
+export const setLoadingHandler = (handler: (loading: boolean) => void) => {
+  setLoadingGlobal = handler;
+};
+
 export const apiRequest = async (
   endpoint: string,
   method: string = "GET",
@@ -19,7 +26,13 @@ export const apiRequest = async (
   const lastCall = lastCalls.get(key);
 
   if (lastCall && now - lastCall.timestamp < 1000) {
+    // Se for uma requisição em cache, não mostra loading
     return lastCall.promise;
+  }
+
+  // Mostra loading apenas para novas requisições
+  if (setLoadingGlobal) {
+    setLoadingGlobal(true);
   }
 
   const promise = (async () => {
@@ -98,6 +111,13 @@ export const apiRequest = async (
   })();
 
   lastCalls.set(key, { timestamp: now, promise });
+
+  // Garante que o loading seja escondido quando a requisição terminar
+  promise.finally(() => {
+    if (setLoadingGlobal) {
+      setLoadingGlobal(false);
+    }
+  });
 
   setTimeout(() => {
     const stored = lastCalls.get(key);

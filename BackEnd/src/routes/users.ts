@@ -84,6 +84,14 @@ router.post(
   async (req: Request, res: Response<ApiResponse<string[]>>) => {
     const { email, name, password, bio } = req.body as CreateUserBody;
 
+    if (!password || password.trim() === "") {
+      return res.status(400).json({
+        data: [""],
+        message: ["A senha é obrigatória"],
+        result: false,
+      });
+    }
+
     try {
       const result = await pool.query<{ id: number }>(
         `
@@ -139,10 +147,18 @@ router.post(
     const { userId, email, name, password, bio } = req.body as UpdateUserBody;
 
     try {
-      const existingUser = await pool.query<{ profile_photo: string }>(
-        `SELECT profile_photo FROM users WHERE id = $1`,
-        [userId]
-      );
+      const existingUser = await pool.query<{
+        profile_photo: string;
+        password: string;
+      }>(`SELECT profile_photo, password FROM users WHERE id = $1`, [userId]);
+
+      if (existingUser.rows.length === 0) {
+        return res.status(404).json({
+          data: [""],
+          message: ["Usuário não encontrado"],
+          result: false,
+        });
+      }
 
       const imagePath = req.file
         ? saveFileToPublic(req.file, "profile", Number(userId), Number(userId))
@@ -151,13 +167,19 @@ router.post(
       const finalImagePath =
         imagePath || existingUser.rows[0]?.profile_photo || "";
 
+      // Se a senha estiver vazia, mantém a senha atual
+      const finalPassword =
+        password && password.trim() !== ""
+          ? password
+          : existingUser.rows[0].password;
+
       await pool.query(
         `
         UPDATE users
         SET name = $1, email = $2, password = $3, profile_photo = $4, bio = $5, updated_at = CURRENT_TIMESTAMP
         WHERE id = $6
         `,
-        [name, email, password, finalImagePath, bio, userId]
+        [name, email, finalPassword, finalImagePath, bio, userId]
       );
 
       return res.json({

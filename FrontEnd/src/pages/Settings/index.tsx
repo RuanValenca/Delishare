@@ -7,7 +7,6 @@ import { useTheme } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { handleUpdateUser, handleGetUser } from "../../api/User/user.service";
 import { useEffect, useRef, useState } from "react";
-import { useDelishare } from "../../hooks/useProvider";
 import { compressImage } from "../../Util/convertImage";
 
 interface UserData {
@@ -20,7 +19,6 @@ interface UserData {
 }
 
 export default function Settings() {
-  const { userInfo } = useDelishare();
   const update = handleUpdateUser;
   const theme = useTheme();
   const navigate = useNavigate();
@@ -30,26 +28,29 @@ export default function Settings() {
 
   const [user, setUser] = useState<UserData | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(
-    stored?.profilePhoto ?? null
-  );
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUser() {
-      const { data, result } = await handleGetUser(userInfo.id);
-      if (result) {
+      if (!stored?.id) return;
+
+      const { data, result } = await handleGetUser(stored.id);
+      if (result && data) {
+        const userData = Array.isArray(data) ? data[0] : data;
         setUser({
-          name: data.name,
-          bio: data.bio,
-          email: data.email,
-          password: data.password,
-          id: userInfo.id,
-          pfp: data.pfp,
+          name: userData.name,
+          bio: userData.bio,
+          email: userData.email,
+          password: userData.password,
+          id: stored.id,
+          pfp: userData.pfp,
         });
+        // Usa a URL completa do backend
+        setPreview(userData.pfp || null);
       }
     }
     fetchUser();
-  }, [userInfo.id]);
+  }, [stored?.id]);
 
   const initialValues = {
     name: stored?.name ?? "",
@@ -84,7 +85,7 @@ export default function Settings() {
         <S.TitleInfo>Perfil</S.TitleInfo>
         <S.Info>
           <S.DivImage>
-            <S.Img src={preview || user?.pfp} />
+            <S.Img src={preview || user?.pfp || stored?.profilePhoto || ""} />
 
             <S.Icon onClick={() => fileInputRef.current?.click()}>
               <Camera size={20} color={theme.font.colors.mainText} />
@@ -118,16 +119,27 @@ export default function Settings() {
                 enableReinitialize
                 initialValues={initialValues}
                 onSubmit={async (values) => {
+                  if (!stored?.id) return;
+
                   const response = await update({
                     bio: values.bio,
                     email: values.email,
                     name: values.name,
                     password: values.password,
-                    userId: userInfo.id,
+                    userId: stored.id,
                     pfp: selectedImageFile || undefined,
                   });
 
                   if (response.result) {
+                    // Busca o usuário atualizado para pegar a URL correta da imagem
+                    const { data: updatedUserDataArray } = await handleGetUser(
+                      stored.id
+                    );
+
+                    const updatedUserData = Array.isArray(updatedUserDataArray)
+                      ? updatedUserDataArray[0]
+                      : updatedUserDataArray;
+
                     const currentUser = localStorage.getItem("userInfo");
                     const parsedUser = currentUser
                       ? JSON.parse(currentUser)
@@ -138,16 +150,16 @@ export default function Settings() {
                       bio: values.bio,
                       email: values.email,
                       name: values.name,
-                      profilePhoto: user?.pfp || "",
+                      profilePhoto: updatedUserData?.pfp || "",
                     };
 
                     localStorage.setItem(
                       "userInfo",
                       JSON.stringify(updatedUser)
                     );
-                    setUser((prev) =>
-                      prev ? { ...prev, ...updatedUser } : null
-                    );
+
+                    // Recarrega a página após atualização bem-sucedida
+                    window.location.reload();
                   }
                 }}
               >
