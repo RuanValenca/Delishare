@@ -7,12 +7,19 @@ export interface BodyShowResult {
   bio: string;
 }
 
-export interface BodyCreateUpdate {
-  userId?: number;
+export interface BodyCreate {
   name: string;
   email: string;
   pfp?: string | File;
   bio: string;
   password: string;
-  isCreate: boolean;
+}
+
+export interface BodyUpdate {
+  userId: number;
+  name: string;
+  email: string;
+  pfp?: string | File;
+  bio: string;
+  password: string;
 }

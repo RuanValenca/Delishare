@@ -11,13 +11,19 @@ const getBaseUrl = (req: Request): string => {
   return `${req.protocol}://${req.get("host")}`;
 };
 
+export interface CreateUserBody {
+  name: string;
+  email: string;
+  bio: string;
+  password: string;
+}
+
 export interface UpdateUserBody {
   userId: number;
   name: string;
   email: string;
   bio: string;
   password: string;
-  isCreate: boolean;
 }
 
 export interface GetUserResponse {
@@ -73,78 +79,43 @@ router.post(
 );
 
 router.post(
-  "/create-update",
+  "/create",
   upload.single("pfp"),
   async (req: Request, res: Response<ApiResponse<string[]>>) => {
-    const { userId, email, name, password, bio, isCreate } =
-      req.body as UpdateUserBody;
+    const { email, name, password, bio } = req.body as CreateUserBody;
 
     try {
-      if (isCreate) {
-        const result = await pool.query<{ id: number }>(
-          `
-          INSERT INTO users (name, email, password, profile_photo, bio, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-          RETURNING id
-          `,
-          [name, email, password, "", bio || ""]
-        );
+      const result = await pool.query<{ id: number }>(
+        `
+        INSERT INTO users (name, email, password, profile_photo, bio, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        RETURNING id
+        `,
+        [name, email, password, "", bio || ""]
+      );
 
-        const newUserId = result.rows[0].id;
-        const imagePath = req.file
-          ? saveFileToPublic(req.file, "profile", newUserId, newUserId)
-          : null;
+      const newUserId = result.rows[0].id;
+      const imagePath = req.file
+        ? saveFileToPublic(req.file, "profile", newUserId, newUserId)
+        : null;
 
-        if (imagePath) {
-          await pool.query(
-            `UPDATE users SET profile_photo = $1 WHERE id = $2`,
-            [imagePath, newUserId]
-          );
-        }
-
-        return res.json({
-          data: [""],
-          message: ["Usuário criado com sucesso"],
-          result: true,
-        });
-      } else {
-        const existingUser = await pool.query<{ profile_photo: string }>(
-          `SELECT profile_photo FROM users WHERE id = $1`,
-          [userId]
-        );
-
-        const imagePath = req.file
-          ? saveFileToPublic(
-              req.file,
-              "profile",
-              Number(userId),
-              Number(userId)
-            )
-          : null;
-
-        const finalImagePath =
-          imagePath || existingUser.rows[0]?.profile_photo || "";
-
-        await pool.query(
-          `
-          UPDATE users
-          SET name = $1, email = $2, password = $3, profile_photo = $4, bio = $5, updated_at = CURRENT_TIMESTAMP
-          WHERE id = $6
-          `,
-          [name, email, password, finalImagePath, bio, userId]
-        );
-
-        return res.json({
-          data: [""],
-          message: ["Usuário atualizado com sucesso"],
-          result: true,
-        });
+      if (imagePath) {
+        await pool.query(`UPDATE users SET profile_photo = $1 WHERE id = $2`, [
+          imagePath,
+          newUserId,
+        ]);
       }
+
+      return res.json({
+        data: [""],
+        message: ["Usuário criado com sucesso"],
+        result: true,
+      });
     } catch (error: unknown) {
       console.error(error);
 
-      // Se for CREATE, verifica se é duplicado
-      if (isCreate && (error as { code?: string }).code === "23505") {
+      const dbError = error as { code?: string };
+      if (dbError?.code === "23505") {
         return res.status(400).json({
           data: [""],
           message: ["Email já está em uso"],
@@ -152,7 +123,63 @@ router.post(
         });
       }
 
-      // Para UPDATE ou outros erros
+      return res.status(500).json({
+        data: [""],
+        message: ["Algo deu errado!"],
+        result: false,
+      });
+    }
+  }
+);
+
+router.post(
+  "/update",
+  upload.single("pfp"),
+  async (req: Request, res: Response<ApiResponse<string[]>>) => {
+    const { userId, email, name, password, bio } = req.body as UpdateUserBody;
+
+    try {
+      const existingUser = await pool.query<{ profile_photo: string }>(
+        `SELECT profile_photo FROM users WHERE id = $1`,
+        [userId]
+      );
+
+      const imagePath = req.file
+        ? saveFileToPublic(req.file, "profile", Number(userId), Number(userId))
+        : null;
+
+      const finalImagePath =
+        imagePath || existingUser.rows[0]?.profile_photo || "";
+
+      await pool.query(
+        `
+        UPDATE users
+        SET name = $1, email = $2, password = $3, profile_photo = $4, bio = $5, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $6
+        `,
+        [name, email, password, finalImagePath, bio, userId]
+      );
+
+      return res.json({
+        data: [""],
+        message: ["Usuário atualizado com sucesso"],
+        result: true,
+      });
+    } catch (error: unknown) {
+      console.error(error);
+
+      const dbError = error as { code?: string; constraint?: string };
+      if (
+        dbError?.code === "23505" &&
+        dbError?.constraint === "users_email_key"
+      ) {
+        return res.status(400).json({
+          data: [""],
+          message: ["Este email já está cadastrado. Use outro email."],
+          result: false,
+        });
+      }
+
       return res.status(500).json({
         data: [""],
         message: ["Algo deu errado!"],

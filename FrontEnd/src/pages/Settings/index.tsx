@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import { ArrowLeft, Camera, Save } from "lucide-react";
 import { useTheme } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { handleCreateUpdate, handleGetUser } from "../../api/User/user.service";
+import { handleUpdateUser, handleGetUser } from "../../api/User/user.service";
 import { useEffect, useRef, useState } from "react";
 import { useDelishare } from "../../hooks/useProvider";
 import { compressImage } from "../../Util/convertImage";
@@ -21,7 +21,7 @@ interface UserData {
 
 export default function Settings() {
   const { userInfo } = useDelishare();
-  const update = handleCreateUpdate;
+  const update = handleUpdateUser;
   const theme = useTheme();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -121,7 +121,6 @@ export default function Settings() {
                   const response = await update({
                     bio: values.bio,
                     email: values.email,
-                    isCreate: false,
                     name: values.name,
                     password: values.password,
                     userId: userInfo.id,

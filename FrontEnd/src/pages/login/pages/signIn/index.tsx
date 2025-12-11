@@ -9,13 +9,13 @@ import { loginService } from "../../../../api/Login/login.service";
 import { useDelishare } from "../../../../hooks/useProvider";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { handleCreateUpdate } from "../../../../api/User/user.service";
+import { handleCreateUser } from "../../../../api/User/user.service";
 import { User } from "phosphor-react";
 
 export default function SignIn() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const create = handleCreateUpdate;
+  const create = handleCreateUser;
   const { setIsAuthenticated } = useDelishare();
 
   const [createUser, setIsCreateUser] = useState(false);
@@ -69,7 +69,6 @@ export default function SignIn() {
           const response = await create({
             bio: values.bio || "",
             email: values.email,
-            isCreate: true,
             name: values.name,
             password: values.password,
             pfp: "",
