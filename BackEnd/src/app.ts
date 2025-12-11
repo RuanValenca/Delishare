@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import path from "path";
 import cors from "cors";
@@ -41,6 +41,8 @@ app.use((req, res, next) => {
   }
 });
 
+app.options("*", cors());
+
 app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });
@@ -50,7 +52,8 @@ app.use("/user", usersRouter);
 app.use("/recipes", recipesRouter);
 app.use("/feed", feedRouter);
 
-app.use((err: Error, _req: Request, res: Response) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error("❌ Erro não tratado:", err);
   if (!res.headersSent) {
     res.status(500).json({
