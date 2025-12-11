@@ -41,8 +41,6 @@ app.use((req, res, next) => {
   }
 });
 
-app.options("*", cors());
-
 app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });
