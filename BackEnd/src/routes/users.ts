@@ -80,21 +80,56 @@ router.post(
       const { userId, email, name, password, bio, isCreate } =
         req.body as UpdateUserBody;
 
-      const imagePath = req.file ? saveFileToPublic(req.file, "profile") : null;
-
       if (isCreate) {
-        await pool.query(
+        const existingUser = await pool.query<{ id: number }>(
+          `SELECT id FROM users WHERE email = $1`,
+          [email]
+        );
+
+        if (existingUser.rows.length > 0) {
+          return res.status(400).json({
+            data: [""],
+            message: [
+              "Este email já está cadastrado. Tente fazer login ou use outro email.",
+            ],
+            result: false,
+          });
+        }
+
+        const result = await pool.query<{ id: number }>(
           `
           INSERT INTO users (name, email, password, profile_photo, bio, created_at, updated_at)
           VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          RETURNING id
           `,
-          [name, email, password, imagePath || "", bio || ""]
+          [name, email, password, "", bio || ""]
         );
+
+        const newUserId = result.rows[0].id;
+        const imagePath = req.file
+          ? saveFileToPublic(req.file, "profile", newUserId, newUserId)
+          : null;
+
+        if (imagePath) {
+          await pool.query(
+            `UPDATE users SET profile_photo = $1 WHERE id = $2`,
+            [imagePath, newUserId]
+          );
+        }
       } else {
         const existingUser = await pool.query<{ profile_photo: string }>(
           `SELECT profile_photo FROM users WHERE id = $1`,
           [userId]
         );
+
+        const imagePath = req.file
+          ? saveFileToPublic(
+              req.file,
+              "profile",
+              Number(userId),
+              Number(userId)
+            )
+          : null;
 
         const finalImagePath =
           imagePath || existingUser.rows[0]?.profile_photo || "";
@@ -120,6 +155,24 @@ router.post(
       });
     } catch (error) {
       console.error(error);
+
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "23505" &&
+        "constraint" in error &&
+        error.constraint === "users_email_key"
+      ) {
+        return res.status(400).json({
+          data: [""],
+          message: [
+            "Este email já está cadastrado. Tente fazer login ou use outro email.",
+          ],
+          result: false,
+        });
+      }
+
       res.status(500).json({
         data: [""],
         message: ["Algo deu errado!"],

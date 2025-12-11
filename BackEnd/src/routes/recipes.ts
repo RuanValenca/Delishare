@@ -101,9 +101,6 @@ router.post(
         difficulty,
       } = req.body as CreateRecipeBody;
 
-      // Salvar arquivo na pasta pública usando a função utilitária
-      const imagePath = req.file ? saveFileToPublic(req.file, "recipes") : null;
-
       const mysqlDate = new Date(createdAt)
         .toISOString()
         .slice(0, 19)
@@ -160,13 +157,25 @@ router.post(
           recipeName,
           description,
           instructions,
-          imagePath,
+          null,
           mysqlDate,
           meal,
           time,
           difficulty,
         ]
       );
+
+      const recipeId = result.rows[0].id;
+      const imagePath = req.file
+        ? saveFileToPublic(req.file, "recipes", Number(userId), recipeId)
+        : null;
+
+      if (imagePath) {
+        await pool.query(
+          `UPDATE recipes SET image_url = $1 WHERE id = $2`,
+          [imagePath, recipeId]
+        );
+      }
 
       res.json({
         data: { id: result.rows[0].id },

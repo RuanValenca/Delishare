@@ -155,8 +155,6 @@ router.post(
         });
       }
 
-      const imagePath = req.file ? saveFileToPublic(req.file, "feed") : null;
-
       const mysqlDate = new Date(createdAt)
         .toISOString()
         .slice(0, 19)
@@ -165,8 +163,20 @@ router.post(
       const result = await pool.query<{ id: number }>(
         `INSERT INTO posts (user_id, description, image_url, created_at)
 VALUES ($1, $2, $3, $4) RETURNING id`,
-        [userId, description, imagePath, mysqlDate]
+        [userId, description, null, mysqlDate]
       );
+
+      const postId = result.rows[0].id;
+      const imagePath = req.file
+        ? saveFileToPublic(req.file, "feed", Number(userId), postId)
+        : null;
+
+      if (imagePath) {
+        await pool.query(`UPDATE posts SET image_url = $1 WHERE id = $2`, [
+          imagePath,
+          postId,
+        ]);
+      }
 
       res.json({
         data: { id: result.rows[0].id },

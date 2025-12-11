@@ -1,28 +1,3 @@
-export const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-
-    reader.onerror = () => {
-      reject("Erro ao converter arquivo para Base64");
-    };
-
-    reader.readAsDataURL(file);
-  });
-};
-
-/**
- * Comprime uma imagem antes de enviar
- * @param file Arquivo de imagem original
- * @param maxWidth Largura máxima (padrão: 1920px)
- * @param maxHeight Altura máxima (padrão: 1920px)
- * @param quality Qualidade de compressão 0-1 (padrão: 0.8)
- * @param maxSizeMB Tamanho máximo em MB (padrão: 2MB)
- * @returns Promise<File> Arquivo comprimido
- */
 export const compressImage = (
   file: File,
   maxWidth: number = 1920,
@@ -31,7 +6,6 @@ export const compressImage = (
   maxSizeMB: number = 2
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
-    // Se o arquivo já é pequeno, retorna sem comprimir
     if (file.size <= maxSizeMB * 1024 * 1024) {
       resolve(file);
       return;
@@ -48,7 +22,6 @@ export const compressImage = (
         let width = img.width;
         let height = img.height;
 
-        // Redimensiona se necessário
         if (width > maxWidth || height > maxHeight) {
           const ratio = Math.min(maxWidth / width, maxHeight / height);
           width = width * ratio;
@@ -66,7 +39,6 @@ export const compressImage = (
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Tenta comprimir com qualidade progressiva se ainda estiver grande
         const currentQuality = quality;
         const tryCompress = (q: number): void => {
           canvas.toBlob(
@@ -78,7 +50,6 @@ export const compressImage = (
 
               const sizeMB = blob.size / (1024 * 1024);
 
-              // Se ainda estiver grande e qualidade > 0.3, tenta novamente com qualidade menor
               if (sizeMB > maxSizeMB && q > 0.3) {
                 tryCompress(q - 0.1);
               } else {
@@ -108,30 +79,4 @@ export const compressImage = (
 
     reader.readAsDataURL(file);
   });
-};
-
-/**
- * Comprime imagem e converte para base64
- * @param file Arquivo de imagem original
- * @param maxWidth Largura máxima (padrão: 1920px)
- * @param maxHeight Altura máxima (padrão: 1920px)
- * @param quality Qualidade de compressão 0-1 (padrão: 0.8)
- * @param maxSizeMB Tamanho máximo em MB (padrão: 2MB)
- * @returns Promise<string> Base64 da imagem comprimida
- */
-export const compressImageToBase64 = async (
-  file: File,
-  maxWidth: number = 1920,
-  maxHeight: number = 1920,
-  quality: number = 0.8,
-  maxSizeMB: number = 2
-): Promise<string> => {
-  const compressedFile = await compressImage(
-    file,
-    maxWidth,
-    maxHeight,
-    quality,
-    maxSizeMB
-  );
-  return fileToBase64(compressedFile);
 };
