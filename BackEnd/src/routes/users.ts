@@ -102,7 +102,7 @@ router.post(
           );
         }
 
-        res.json({
+        return res.json({
           data: [""],
           message: ["Usuário criado com sucesso"],
           result: true,
@@ -134,15 +134,26 @@ router.post(
           [name, email, password, finalImagePath, bio, userId]
         );
 
-        res.json({
+        return res.json({
           data: [""],
           message: ["Usuário atualizado com sucesso"],
           result: true,
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      res.status(500).json({
+
+      // Se for CREATE, verifica se é duplicado
+      if (isCreate && (error as { code?: string }).code === "23505") {
+        return res.status(400).json({
+          data: [""],
+          message: ["Email já está em uso"],
+          result: false,
+        });
+      }
+
+      // Para UPDATE ou outros erros
+      return res.status(500).json({
         data: [""],
         message: ["Algo deu errado!"],
         result: false,
