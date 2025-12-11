@@ -76,10 +76,10 @@ router.post(
   "/create-update",
   upload.single("pfp"),
   async (req: Request, res: Response<ApiResponse<string[]>>) => {
-    try {
-      const { userId, email, name, password, bio, isCreate } =
-        req.body as UpdateUserBody;
+    const { userId, email, name, password, bio, isCreate } =
+      req.body as UpdateUserBody;
 
+    try {
       if (isCreate) {
         const existingUser = await pool.query<{ id: number }>(
           `SELECT id FROM users WHERE email = $1`,
@@ -157,6 +157,7 @@ router.post(
       console.error(error);
 
       if (
+        isCreate &&
         error &&
         typeof error === "object" &&
         "code" in error &&
