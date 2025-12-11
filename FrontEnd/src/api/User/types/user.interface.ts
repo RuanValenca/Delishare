@@ -11,7 +11,7 @@ export interface BodyCreateUpdate {
   userId?: number;
   name: string;
   email: string;
-  pfp: string;
+  pfp?: string | File;
   bio: string;
   password: string;
   isCreate: boolean;

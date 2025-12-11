@@ -1,5 +1,6 @@
 import * as apiService from "../api.service";
 import { defaultReturnNotToast } from "../../Util/Toast";
+import { changeObjectToFormData } from "../api.service";
 import type {
   BodyCreate,
   BodyCreateComment,
@@ -28,7 +29,17 @@ const feedService = {
     result: boolean;
   }> {
     try {
-      const request = await apiService.apiRequest("/feed/create", "POST", body);
+      const formData = changeObjectToFormData({
+        ...body,
+        image: body.image,
+      });
+
+      const request = await apiService.apiRequest(
+        "/feed/create",
+        "POST",
+        formData,
+        "file"
+      );
       return defaultReturnNotToast(request);
     } catch (error) {
       if (error instanceof Error) {

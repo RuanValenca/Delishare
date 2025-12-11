@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { handleCreateUpdate, handleGetUser } from "../../api/User/user.service";
 import { useEffect, useRef, useState } from "react";
 import { useDelishare } from "../../hooks/useProvider";
-import { fileToBase64 } from "../../Util/convertImage";
+import { compressImage } from "../../Util/convertImage";
 
 interface UserData {
   name: string;
@@ -29,7 +29,8 @@ export default function Settings() {
   const stored = userDataRaw ? JSON.parse(userDataRaw) : null;
 
   const [user, setUser] = useState<UserData | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(
     stored?.profilePhoto ?? null
   );
 
@@ -83,7 +84,7 @@ export default function Settings() {
         <S.TitleInfo>Perfil</S.TitleInfo>
         <S.Info>
           <S.DivImage>
-            <S.Img src={selectedImage || user?.pfp} />
+            <S.Img src={preview || user?.pfp} />
 
             <S.Icon onClick={() => fileInputRef.current?.click()}>
               <Camera size={20} color={theme.font.colors.mainText} />
@@ -97,8 +98,16 @@ export default function Settings() {
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (file) {
-                const base64 = await fileToBase64(file);
-                setSelectedImage(base64);
+                try {
+                  const compressedFile = await compressImage(file);
+                  setSelectedImageFile(compressedFile);
+                  const previewUrl = URL.createObjectURL(compressedFile);
+                  setPreview(previewUrl);
+                } catch (error) {
+                  console.error("Erro ao processar imagem:", error);
+                  setSelectedImageFile(file);
+                  setPreview(URL.createObjectURL(file));
+                }
               }
             }}
           />
@@ -109,16 +118,14 @@ export default function Settings() {
                 enableReinitialize
                 initialValues={initialValues}
                 onSubmit={async (values) => {
-                  const finalImage = selectedImage || values.pfp;
-
                   const response = await update({
                     bio: values.bio,
                     email: values.email,
                     isCreate: false,
                     name: values.name,
                     password: values.password,
-                    pfp: finalImage,
                     userId: userInfo.id,
+                    pfp: selectedImageFile || undefined,
                   });
 
                   if (response.result) {
@@ -132,7 +139,7 @@ export default function Settings() {
                       bio: values.bio,
                       email: values.email,
                       name: values.name,
-                      profilePhoto: finalImage,
+                      profilePhoto: user?.pfp || "",
                     };
 
                     localStorage.setItem(

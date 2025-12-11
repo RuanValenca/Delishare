@@ -53,6 +53,8 @@ export default function Recipes() {
   const [searchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
   const theme = useTheme();
+  const storedUser = localStorage.getItem("userInfo");
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
   const [list, setList] = useState<ShowResult[]>([]);
   const [filteredList, setFilteredList] = useState<ShowResult[]>([]);
@@ -174,7 +176,9 @@ export default function Recipes() {
         enableReinitialize
       >
         {({ values, handleChange, resetForm }) => {
-          const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+          const handleImage = async (
+            e: React.ChangeEvent<HTMLInputElement>
+          ) => {
             const file = e.target.files?.[0];
             if (!file) return;
 
@@ -483,8 +487,12 @@ export default function Recipes() {
                     width="medium"
                     textColor={theme.font.colors.whiteText}
                     onClick={async () => {
+                      if (!parsedUser?.id) {
+                        return;
+                      }
+
                       const response = await handleCreate({
-                        userId: userInfo.id,
+                        userId: parsedUser.id,
                         createdAt: new Date().toISOString(),
                         recipeName: values.recipeName,
                         meal: values.meal,

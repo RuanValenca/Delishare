@@ -132,7 +132,7 @@ router.post(
       if (!userId) {
         return res.status(400).json({
           data: null,
-          message: ["Erro de autenticação. Por favor, faça login novamente"],
+          message: ["Erro ao identificar o usuário. Tente novamente"],
           result: false,
         });
       }

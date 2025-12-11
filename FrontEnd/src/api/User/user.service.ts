@@ -1,5 +1,6 @@
 import * as apiService from "../api.service";
 import { defaultReturnWithToast } from "../../Util/Toast";
+import { changeObjectToFormData } from "../api.service";
 import type { BodyCreateUpdate, BodyShowResult } from "./types/user.interface";
 
 const userService = {
@@ -25,10 +26,16 @@ const userService = {
     result: boolean;
   }> {
     try {
+      const formData = changeObjectToFormData({
+        ...body,
+        pfp: body.pfp,
+      });
+
       const request = await apiService.apiRequest(
         "/user/create-update",
         "POST",
-        body
+        formData,
+        "file"
       );
       return defaultReturnWithToast(request);
     } catch (error) {

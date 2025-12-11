@@ -7,7 +7,7 @@ import { useTheme } from "styled-components";
 import BasicButton from "../BasicButton";
 import { ImagePlus, Send, User, Loader2 } from "lucide-react";
 import { handleCreate, handleGetList } from "../../api/Feed/feed.service";
-import { compressImageToBase64 } from "../../Util/convertImage";
+import { compressImage } from "../../Util/convertImage";
 import type { ShowResult } from "../../api/Feed/types/feed.interface";
 import { successToast, errorToast } from "../Toast";
 
@@ -27,7 +27,7 @@ export default function FeedCreate(props: Props) {
   const storedUser = localStorage.getItem("userInfo");
   const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
-  const [imageFile, setImageFile] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
 
@@ -41,13 +41,14 @@ export default function FeedCreate(props: Props) {
     if (!file) return;
 
     try {
-      // Comprime a imagem antes de converter para base64
-      const base64 = await compressImageToBase64(file);
-      setImageFile(base64);
-      setPreview(base64);
+      const compressedFile = await compressImage(file);
+      setImageFile(compressedFile);
+      setPreview(URL.createObjectURL(compressedFile));
     } catch (error) {
       console.error("Erro ao processar imagem:", error);
       errorToast("Erro ao processar imagem. Tente novamente.");
+      setImageFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
@@ -61,11 +62,19 @@ export default function FeedCreate(props: Props) {
           setIsPosting(true);
 
           try {
+            if (!parsedUser?.id) {
+              errorToast(
+                "Erro ao identificar o usuário. Faça login novamente."
+              );
+              setIsPosting(false);
+              return;
+            }
+
             const body = {
               description: values.description,
-              userId: userInfo.id,
+              userId: parsedUser.id,
               createdAt: nowBR,
-              imageUrl: imageFile || null,
+              image: imageFile || undefined,
             };
 
             const response = await submit(body);
@@ -74,6 +83,9 @@ export default function FeedCreate(props: Props) {
               successToast("Post publicado com sucesso!");
 
               setFieldValue("description", "");
+              if (preview) {
+                URL.revokeObjectURL(preview);
+              }
               setImageFile(null);
               setPreview(null);
 
@@ -90,7 +102,9 @@ export default function FeedCreate(props: Props) {
             }
           } catch (error) {
             console.error("Erro ao postar:", error);
-            errorToast("Não foi possível publicar seu post. Verifique sua conexão e tente novamente.");
+            errorToast(
+              "Não foi possível publicar seu post. Verifique sua conexão e tente novamente."
+            );
           } finally {
             setIsPosting(false);
           }
@@ -172,6 +186,9 @@ export default function FeedCreate(props: Props) {
                 <S.RemoveButton
                   type="button"
                   onClick={() => {
+                    if (preview) {
+                      URL.revokeObjectURL(preview);
+                    }
                     setPreview(null);
                     setImageFile(null);
                   }}

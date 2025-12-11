@@ -1,11 +1,19 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
 import { ApiResponse } from "../types/genericApi.interface";
+import { upload } from "../middleware/upload";
+import { saveFileToPublic } from "../util/fileUpload";
+
+const getBaseUrl = (req: Request): string => {
+  if (process.env.BACKEND_URL) {
+    return process.env.BACKEND_URL.replace(/\/$/, "");
+  }
+  return `${req.protocol}://${req.get("host")}`;
+};
 
 interface FeedCreateBody {
   userId: number;
   description: string;
-  imageUrl?: string;
   createdAt: Date;
 }
 
@@ -52,7 +60,7 @@ interface CreateCommentResponse {
 const router = Router();
 router.get(
   "/get-feed",
-  async (_req: Request, res: Response<ApiResponse<FeedResponse[]>>) => {
+  async (req: Request, res: Response<ApiResponse<FeedResponse[]>>) => {
     try {
       const result = await pool.query<FeedResponse>(`
         SELECT 
@@ -69,9 +77,16 @@ router.get(
       `);
       const rows = result.rows;
 
-      // Buscar comentários para cada post
+      const baseUrl = getBaseUrl(req);
+
+      const postsWithUrls = rows.map((post) => ({
+        ...post,
+        imageUrl: post.imageUrl ? `${baseUrl}${post.imageUrl}` : undefined,
+        pfp: post.pfp ? `${baseUrl}${post.pfp}` : "",
+      }));
+
       const postsWithComments = await Promise.all(
-        rows.map(async (post) => {
+        postsWithUrls.map(async (post) => {
           const commentsResult = await pool.query<CommentResponse>(
             `
             SELECT 
@@ -89,9 +104,14 @@ router.get(
             [post.id]
           );
 
+          const commentsWithUrls = commentsResult.rows.map((comment) => ({
+            ...comment,
+            pfp: comment.pfp ? `${baseUrl}${comment.pfp}` : "",
+          }));
+
           return {
             ...post,
-            comments: commentsResult.rows,
+            comments: commentsWithUrls,
           };
         })
       );
@@ -114,10 +134,10 @@ router.get(
 
 router.post(
   "/create",
+  upload.single("image"),
   async (req: Request, res: Response<ApiResponse<CreateFeedResponse>>) => {
     try {
-      const { userId, description, imageUrl, createdAt }: FeedCreateBody =
-        req.body;
+      const { userId, description, createdAt }: FeedCreateBody = req.body;
 
       if (!description || description.trim() === "") {
         return res.status(400).json({
@@ -130,10 +150,12 @@ router.post(
       if (!userId) {
         return res.status(400).json({
           data: null,
-          message: ["Erro de autenticação. Por favor, faça login novamente"],
+          message: ["Erro ao identificar o usuário. Tente novamente"],
           result: false,
         });
       }
+
+      const imagePath = req.file ? saveFileToPublic(req.file, "feed") : null;
 
       const mysqlDate = new Date(createdAt)
         .toISOString()
@@ -143,7 +165,7 @@ router.post(
       const result = await pool.query<{ id: number }>(
         `INSERT INTO posts (user_id, description, image_url, created_at)
 VALUES ($1, $2, $3, $4) RETURNING id`,
-        [userId, description, imageUrl || null, mysqlDate]
+        [userId, description, imagePath, mysqlDate]
       );
 
       res.json({
@@ -152,7 +174,7 @@ VALUES ($1, $2, $3, $4) RETURNING id`,
         result: true,
       });
     } catch (error) {
-      console.error("Erro na rota POST /create-feed:", error);
+      console.error("Erro na rota POST /create:", error);
       res.status(500).json({
         data: null,
         message: ["Erro interno do servidor"],
@@ -179,7 +201,7 @@ router.post(
       if (!userId) {
         return res.status(400).json({
           data: null,
-          message: ["Erro de autenticação. Por favor, faça login novamente"],
+          message: ["Erro ao identificar o usuário. Tente novamente"],
           result: false,
         });
       }

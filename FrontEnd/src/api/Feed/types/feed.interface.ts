@@ -22,8 +22,8 @@ export interface ShowResult {
 export interface BodyCreate {
   userId: number;
   description: string;
-  imageUrl: string | null;
   createdAt: string;
+  image?: File;
 }
 
 export interface BodyCreateComment {
