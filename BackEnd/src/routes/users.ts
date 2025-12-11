@@ -81,21 +81,6 @@ router.post(
 
     try {
       if (isCreate) {
-        const existingUser = await pool.query<{ id: number }>(
-          `SELECT id FROM users WHERE email = $1`,
-          [email]
-        );
-
-        if (existingUser.rows.length > 0) {
-          return res.status(400).json({
-            data: [""],
-            message: [
-              "Este email já está cadastrado. Tente fazer login ou use outro email.",
-            ],
-            result: false,
-          });
-        }
-
         const result = await pool.query<{ id: number }>(
           `
           INSERT INTO users (name, email, password, profile_photo, bio, created_at, updated_at)
