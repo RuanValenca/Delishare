@@ -90,6 +90,9 @@ export default function CardPost({
         if (onCommentAdd) {
           onCommentAdd(postId, newComment);
         }
+
+        // Recarrega a página após comentar com sucesso
+        window.location.reload();
       }
     } catch (error) {
       console.error("Erro ao adicionar comentário:", error);

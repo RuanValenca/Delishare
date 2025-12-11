@@ -8,7 +8,6 @@ import RecipeModal from "../../components/RecipeModal";
 import {
   ArrowBigRightDash,
   ArrowUpDown,
-  Heart,
   ImagePlus,
   PlusCircle,
   Search,
@@ -60,9 +59,7 @@ export default function Recipes() {
   const [filteredList, setFilteredList] = useState<ShowResult[]>([]);
   const [isCreate, setIsCreate] = useState<boolean>(false);
   const [isReversed, setIsReversed] = useState<boolean>(false);
-  const [activeFilter, setActiveFilter] = useState<
-    "all" | "mine" | "liked" | null
-  >(null);
+  const [activeFilter, setActiveFilter] = useState<"all" | "mine" | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<ShowResult | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -345,25 +342,6 @@ export default function Recipes() {
                     }}
                   >
                     Minhas
-                  </BasicButton>
-
-                  <BasicButton
-                    gap="1rem"
-                    icon={<Heart size={15} />}
-                    bgColorHover={theme.colors.blueSchema.default}
-                    height="small"
-                    bgColor={theme.colors.background}
-                    font="medium"
-                    width="medium"
-                    textColor={theme.font.colors.secondaryText}
-                    isActive={activeFilter === "liked"}
-                    onClick={() => {
-                      // TODO: Implementar filtro de curtidas
-                      setActiveFilter("liked");
-                      setIsCreate(false);
-                    }}
-                  >
-                    Curtidas
                   </BasicButton>
 
                   <S.ReverseButton
