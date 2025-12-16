@@ -1,15 +1,9 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
 import { ApiResponse } from "../types/genericApi.interface";
-import { upload } from "../middleware/upload";
 import { saveFileToPublic } from "../util/fileUpload";
-
-const getBaseUrl = (req: Request): string => {
-  if (process.env.BACKEND_URL) {
-    return process.env.BACKEND_URL.replace(/\/$/, "");
-  }
-  return `${req.protocol}://${req.get("host")}`;
-};
+import { upload } from "../config/multer";
+import { supabase } from "../lib/supabase";
 
 interface FeedCreateBody {
   userId: number;
@@ -58,6 +52,7 @@ interface CreateCommentResponse {
 }
 
 const router = Router();
+
 router.get(
   "/get-feed",
   async (req: Request, res: Response<ApiResponse<FeedResponse[]>>) => {
@@ -75,15 +70,22 @@ router.get(
         JOIN users u ON u.id = p.user_id
         ORDER BY p.created_at DESC
       `);
+
       const rows = result.rows;
 
-      const baseUrl = getBaseUrl(req);
+      const postsWithUrls = rows.map((post) => {
+        // imagem do feed já está salva como URL pública
+        const imageUrl = post.imageUrl || undefined;
 
-      const postsWithUrls = rows.map((post) => ({
-        ...post,
-        imageUrl: post.imageUrl ? `${baseUrl}${post.imageUrl}` : undefined,
-        pfp: post.pfp ? `${baseUrl}${post.pfp}` : "",
-      }));
+        // imagem do user já está URL pública
+        const profileUrl = post.pfp || "";
+
+        return {
+          ...post,
+          imageUrl,
+          pfp: profileUrl,
+        };
+      });
 
       const postsWithComments = await Promise.all(
         postsWithUrls.map(async (post) => {
@@ -100,13 +102,13 @@ router.get(
             JOIN users u ON u.id = c.user_id
             WHERE c.post_id = $1
             ORDER BY c.created_at ASC
-          `,
+            `,
             [post.id]
           );
 
           const commentsWithUrls = commentsResult.rows.map((comment) => ({
             ...comment,
-            pfp: comment.pfp ? `${baseUrl}${comment.pfp}` : "",
+            pfp: comment.pfp || "",
           }));
 
           return {
@@ -132,6 +134,7 @@ router.get(
   }
 );
 
+
 router.post(
   "/create",
   upload.single("image"),
@@ -155,31 +158,42 @@ router.post(
         });
       }
 
-      const mysqlDate = new Date(createdAt)
-        .toISOString()
-        .slice(0, 19)
-        .replace("T", " ");
+      // Salva no banco com caminho relativo
+      const mysqlDate = new Date(createdAt).toISOString().slice(0, 19).replace("T", " ");
 
       const result = await pool.query<{ id: number }>(
         `INSERT INTO posts (user_id, description, image_url, created_at)
-VALUES ($1, $2, $3, $4) RETURNING id`,
+         VALUES ($1, $2, $3, $4) RETURNING id`,
         [userId, description, null, mysqlDate]
       );
 
       const postId = result.rows[0].id;
-      const imagePath = req.file
-        ? saveFileToPublic(req.file, "feed", Number(userId), postId)
-        : null;
 
-      if (imagePath) {
+      let publicUrl: string | null = null;
+
+      if (req.file) {
+        // Salva no Supabase e pega URL pública
+        const fileName = `user-${userId}/post-${postId}-${req.file.originalname}`;
+        const { data, error } = await supabase.storage
+          .from("feed")
+          .upload(fileName, req.file.buffer, {
+            cacheControl: "3600",
+            upsert: true,
+            contentType: req.file.mimetype,
+          });
+
+        if (error) throw error;
+
+        publicUrl = supabase.storage.from("feed").getPublicUrl(fileName).data.publicUrl;
+
         await pool.query(`UPDATE posts SET image_url = $1 WHERE id = $2`, [
-          imagePath,
+          publicUrl,
           postId,
         ]);
       }
 
       res.json({
-        data: { id: result.rows[0].id },
+        data: { id: postId },
         message: ["Feed criado com sucesso"],
         result: true,
       });
@@ -193,6 +207,7 @@ VALUES ($1, $2, $3, $4) RETURNING id`,
     }
   }
 );
+
 
 router.post(
   "/comment/create",

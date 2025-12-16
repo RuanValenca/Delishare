@@ -2,7 +2,6 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import * as S from "./styles";
 import { Formik, Form } from "formik";
 import FieldFormik from "../../components/FieldFormik";
-import { useDelishare } from "../../hooks/useProvider";
 import { useTheme } from "styled-components";
 import BasicButton from "../BasicButton";
 import { ImagePlus, Send, User, Loader2 } from "lucide-react";
@@ -20,7 +19,6 @@ const initialValues = {
 };
 
 export default function FeedCreate(props: Props) {
-  const { userInfo } = useDelishare();
   const theme = useTheme();
   const submit = handleCreate;
   const show = handleGetList;
@@ -119,14 +117,14 @@ export default function FeedCreate(props: Props) {
             }}
           >
             <S.InfoTop>
-              {parsedUser?.profilePhoto ? (
-                <S.Photo src={parsedUser.profilePhoto} />
+              {parsedUser?.pfp ? (
+                <S.Photo src={parsedUser.pfp} />
               ) : (
                 <S.PhotoPlaceholder>
                   <User size={24} color={theme.font.colors.DarkBlue} />
                 </S.PhotoPlaceholder>
               )}
-              {parsedUser?.name || userInfo?.name}
+              {parsedUser?.name}
             </S.InfoTop>
 
             <FieldFormik

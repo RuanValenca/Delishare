@@ -5,15 +5,13 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  profilePhoto: string | null;
+  pfp: string | null; 
   bio: string;
 }
 
 export interface AuthContextProps {
-  userInfo: User;
   isAuthenticated: boolean;
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
-  setUserInfo: Dispatch<SetStateAction<User>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   logout: () => void;
@@ -25,14 +23,12 @@ export default function AuthProvider({
   children: React.ReactNode;
 }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userInfo, setUserInfo] = useState<User>({} as User);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const stored = localStorage.getItem("userInfo");
 
     if (stored) {
-      setUserInfo(JSON.parse(stored));
       setIsAuthenticated(true);
     }
 
@@ -41,7 +37,6 @@ export default function AuthProvider({
 
   const logout = () => {
     localStorage.clear();
-    setUserInfo({} as User);
     setIsAuthenticated(false);
   };
   return (
@@ -49,8 +44,6 @@ export default function AuthProvider({
       value={{
         isAuthenticated: isAuthenticated,
         setIsAuthenticated: setIsAuthenticated,
-        setUserInfo: setUserInfo,
-        userInfo: userInfo,
         isLoading: isLoading,
         setIsLoading: setIsLoading,
         logout: logout,

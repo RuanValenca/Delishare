@@ -3,7 +3,6 @@ import { useTheme } from "styled-components";
 import * as S from "./styles";
 import { useEffect, useState, useRef } from "react";
 import type { Comment } from "../../api/Feed/types/feed.interface";
-import { useDelishare } from "../../hooks/useProvider";
 import { handleCreateComment } from "../../api/Feed/feed.service";
 
 interface Props {
@@ -30,13 +29,15 @@ export default function CardPost({
   isMocked = false,
 }: Props) {
   const theme = useTheme();
-  const { userInfo } = useDelishare();
   const [src, setSrc] = useState<string | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const prevCommentsRef = useRef<string>("");
+
+  const storedUser = localStorage.getItem("parsedUser");
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
   useEffect(() => {
     if (typeof img === "string") {
@@ -68,7 +69,7 @@ export default function CardPost({
   };
 
   const handleAddComment = async () => {
-    if (!commentText.trim() || !userInfo || isSubmitting) return;
+    if (!commentText.trim() || !parsedUser || isSubmitting) return;
 
     setIsSubmitting(true);
     const textToSend = commentText.trim();
@@ -77,7 +78,7 @@ export default function CardPost({
     try {
       const response = await handleCreateComment({
         postId,
-        userId: userInfo.id,
+        userId: parsedUser.id,
         text: textToSend,
         createdAt: new Date().toISOString(),
       });
@@ -161,7 +162,7 @@ export default function CardPost({
             </S.CommentsList>
           )}
 
-          {userInfo && !isMocked && (
+          {parsedUser && !isMocked && (
             <S.CommentInputContainer>
               <S.CommentInput
                 placeholder="Adicione um comentário..."

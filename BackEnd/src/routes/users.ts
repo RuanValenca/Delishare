@@ -1,15 +1,10 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
 import { ApiResponse } from "../types/genericApi.interface";
-import { upload } from "../middleware/upload";
 import { saveFileToPublic } from "../util/fileUpload";
-
-const getBaseUrl = (req: Request): string => {
-  if (process.env.BACKEND_URL) {
-    return process.env.BACKEND_URL.replace(/\/$/, "");
-  }
-  return `${req.protocol}://${req.get("host")}`;
-};
+import { supabase } from "../lib/supabase";
+import { randomUUID } from "crypto";
+import { upload } from "../config/multer";
 
 export interface CreateUserBody {
   name: string;
@@ -36,7 +31,6 @@ export interface GetUserResponse {
 }
 
 const router = Router();
-
 router.post(
   "/get-user",
   async (
@@ -54,22 +48,30 @@ router.post(
         `,
         [userId]
       );
+
       const rows = result.rows;
 
-      const baseUrl = getBaseUrl(req);
+      if (rows.length === 0) {
+        return res.status(404).json({
+          data: null,
+          message: ["Usuário não encontrado"],
+          result: false,
+        });
+      }
+
       const usersWithUrls = rows.map((user) => ({
         ...user,
-        pfp: user.pfp ? `${baseUrl}${user.pfp}` : "",
+        pfp: user.pfp ? `${user.pfp}` : "", 
       }));
 
-      res.json({
+      return res.json({
         data: usersWithUrls,
         message: ["Usuário carregado com sucesso"],
         result: true,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      return res.status(500).json({
         data: null,
         message: ["Algo deu errado!"],
         result: false,
@@ -77,6 +79,7 @@ router.post(
     }
   }
 );
+
 
 router.post(
   "/create",
@@ -139,18 +142,22 @@ router.post(
     }
   }
 );
-
 router.post(
   "/update",
-  upload.single("pfp"),
+  upload.single("pfp"), 
   async (req: Request, res: Response<ApiResponse<string[]>>) => {
+ 
     const { userId, email, name, password, bio } = req.body as UpdateUserBody;
 
     try {
+      
       const existingUser = await pool.query<{
         profile_photo: string;
         password: string;
-      }>(`SELECT profile_photo, password FROM users WHERE id = $1`, [userId]);
+      }>(
+        `SELECT profile_photo, password FROM users WHERE id = $1`,
+        [userId]
+      );
 
       if (existingUser.rows.length === 0) {
         return res.status(404).json({
@@ -160,23 +167,56 @@ router.post(
         });
       }
 
-      const imagePath = req.file
-        ? saveFileToPublic(req.file, "profile", Number(userId), Number(userId))
-        : null;
+      
+      let imageUrl: string | null = null;
 
+      if (req.file) {
+        const fileExt = req.file.mimetype.split("/")[1];
+        const fileName = `user-${userId}-${randomUUID()}.${fileExt}`;
+
+        const { error } = await supabase.storage
+          .from("avatar")
+          .upload(fileName, req.file.buffer, {
+            contentType: req.file.mimetype,
+            upsert: true,
+          });
+
+        if (error) {
+          console.error("Erro ao enviar imagem para Supabase:", error);
+          return res.status(500).json({
+            data: [""],
+            message: ["Erro ao enviar imagem"],
+            result: false,
+          });
+        }
+
+        const { data } = supabase.storage
+          .from("avatar")
+          .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+      }
+
+      
       const finalImagePath =
-        imagePath || existingUser.rows[0]?.profile_photo || "";
+        imageUrl || existingUser.rows[0].profile_photo || "";
 
-      // Se a senha estiver vazia, mantém a senha atual
       const finalPassword =
         password && password.trim() !== ""
           ? password
           : existingUser.rows[0].password;
 
+      
       await pool.query(
         `
         UPDATE users
-        SET name = $1, email = $2, password = $3, profile_photo = $4, bio = $5, updated_at = CURRENT_TIMESTAMP
+        SET
+          name = $1,
+          email = $2,
+          password = $3,
+          profile_photo = $4,
+          bio = $5,
+          updated_at = CURRENT_TIMESTAMP
         WHERE id = $6
         `,
         [name, email, finalPassword, finalImagePath, bio, userId]

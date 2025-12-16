@@ -127,15 +127,20 @@ export const apiRequest = async (
   return promise;
 };
 
-// Conversão do objeto para FormData
-export const changeObjectToFormData = (body: any) => {
-  const formDataFormat = new FormData();
-  for (const key in body) {
-    if (body[key] instanceof Blob) {
-      formDataFormat.append(key, body[key]);
-    } else if (body[key] !== undefined && body[key] !== null) {
-      formDataFormat.append(key, String(body[key]));
+export const changeObjectToFormData = (body: Record<string, unknown>) => {
+  const formData = new FormData();
+
+  Object.entries(body).forEach(([key, value]) => {
+    if (value instanceof File) {
+      formData.append(key, value);
+      return;
     }
-  }
-  return formDataFormat;
+
+    if (value !== undefined && value !== null) {
+      formData.append(key, String(value));
+    }
+  });
+
+  return formData;
 };
+

@@ -57,7 +57,7 @@ export default function Settings() {
     bio: stored?.bio ?? "",
     email: stored?.email ?? "",
     password: user?.password ?? "",
-    pfp: stored?.profilePhoto ?? "",
+    pfp: stored?.pfp ?? "",
   };
 
   return (
@@ -85,7 +85,7 @@ export default function Settings() {
         <S.TitleInfo>Perfil</S.TitleInfo>
         <S.Info>
           <S.DivImage>
-            <S.Img src={preview || user?.pfp || stored?.profilePhoto || ""} />
+            <S.Img src={preview || user?.pfp || stored?.pfp || ""} />
 
             <S.Icon onClick={() => fileInputRef.current?.click()}>
               <Camera size={20} color={theme.font.colors.mainText} />
@@ -150,7 +150,7 @@ export default function Settings() {
                       bio: values.bio,
                       email: values.email,
                       name: values.name,
-                      profilePhoto: updatedUserData?.pfp || "",
+                      pfp: updatedUserData?.pfp || "",
                     };
 
                     localStorage.setItem(
@@ -158,8 +158,6 @@ export default function Settings() {
                       JSON.stringify(updatedUser)
                     );
 
-                    // Recarrega a página após atualização bem-sucedida
-                    window.location.reload();
                   }
                 }}
               >

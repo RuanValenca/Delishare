@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDelishare } from "../../../hooks/useProvider";
 
 export default function NavBar() {
-  const { logout, userInfo } = useDelishare();
+  const { logout } = useDelishare();
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -15,10 +15,13 @@ export default function NavBar() {
     navigate("/login");
   };
 
-  const hasProfilePhoto = Boolean(
-    userInfo?.profilePhoto && userInfo.profilePhoto.trim() !== ""
+  const storedUser = localStorage.getItem("userInfo"); 
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  
+  const haspfp = Boolean(
+    parsedUser?.pfp && parsedUser.pfp.trim() !== ""
   );
-
+  
   return (
     <S.Container>
       <S.DivName>
@@ -59,9 +62,9 @@ export default function NavBar() {
             <SignOut size={24} weight="fill" />
           </S.LinkIcon>
         </S.LinkItem>
-        {hasProfilePhoto ? (
+        {haspfp ? (
           <S.ProfileImage
-            src={userInfo.profilePhoto}
+            src={parsedUser.pfp}
             onClick={() => navigate("/settings")}
           />
         ) : (

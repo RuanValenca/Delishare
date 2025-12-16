@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { Express } from "express-serve-static-core";
 
 export function saveFileToPublic(
   file: Express.Multer.File,
@@ -15,6 +14,7 @@ export function saveFileToPublic(
   const publicDir = path.join(__dirname, "../public");
   const targetDir = path.join(publicDir, cleanDirectory);
 
+  // Cria a pasta se não existir
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
   }
@@ -25,7 +25,9 @@ export function saveFileToPublic(
 
   const filePath = path.join(targetDir, filename);
 
-  fs.renameSync(file.path, filePath);
+  // Copia e remove o arquivo temporário para evitar problemas de rename no Windows
+  fs.copyFileSync(file.path, filePath);
+  fs.unlinkSync(file.path);
 
   return `/${cleanDirectory}/${filename}`;
 }

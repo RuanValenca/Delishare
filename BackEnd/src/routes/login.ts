@@ -5,7 +5,7 @@ interface LoginProps {
   id: number;
   name: string;
   email: string;
-  profilePhoto: string;
+  pfp: string;
   bio: string;
 }
 
@@ -40,7 +40,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     const result = await pool.query<LoginProps>(
-      'SELECT id, name, email, profile_photo as "profilePhoto", bio FROM users WHERE email = $1 AND password = $2',
+      'SELECT id, name, email, profile_photo as "pfp", bio FROM users WHERE email = $1 AND password = $2',
       [email, password]
     );
 

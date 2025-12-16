@@ -13,10 +13,9 @@ import {
   Search,
   User,
 } from "lucide-react";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback,  useEffect, useState } from "react";
 import type { ShowResult } from "../../api/Recipes/types/recipes.interface";
 import { handleCreate, handleGetList } from "../../api/Recipes/recipes.service";
-import { DelishareContext } from "../../contexts/delishareContext";
 import { useSearchParams } from "react-router-dom";
 import { compressImage } from "../../Util/convertImage";
 
@@ -48,7 +47,6 @@ const options = {
 };
 
 export default function Recipes() {
-  const { userInfo } = useContext(DelishareContext);
   const [searchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
   const theme = useTheme();
@@ -64,6 +62,8 @@ export default function Recipes() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
+
 
   const applyOrder = useCallback(
     (data: ShowResult[]) => {
@@ -328,18 +328,18 @@ export default function Recipes() {
                     onClick={() => {
                       setActiveFilter("mine");
                       setIsCreate(false);
-
-                      if (!userInfo?.id) {
+                    
+                      if (!parsedUser?.id) {
                         setFilteredList(applyOrder([]));
                         return;
                       }
-
+                    
                       const mine = list.filter(
-                        (recipe) =>
-                          Number(recipe.userId) === Number(userInfo.id)
+                        (recipe) => Number(recipe.userId) === Number(parsedUser.id)
                       );
                       setFilteredList(applyOrder(mine));
                     }}
+                    
                   >
                     Minhas
                   </BasicButton>

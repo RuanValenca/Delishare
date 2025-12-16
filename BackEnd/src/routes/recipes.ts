@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
 import { pool } from "../db";
 import { ApiResponse } from "../types/genericApi.interface";
-import { upload } from "../middleware/upload";
 import { saveFileToPublic } from "../util/fileUpload";
+import { upload } from "../config/multer";
+import { supabase } from "../lib/supabase";
 
 // URL base do backend (usar variável de ambiente ou padrão)
 const getBaseUrl = (req: Request): string => {
@@ -49,25 +50,23 @@ router.get("/get-recipes", async (req: Request, res: Response) => {
   try {
     const result = await pool.query<ResponseData>(
       `SELECT 
-      id,
-      user_id AS "userId",
-      "recipeName",
-      description,
-      instructions,
-      meal,
-      difficulty,
-      time,
-      image_url AS img,
-      created_at AS "createdAt"
-    FROM recipes`
+        id,
+        user_id AS "userId",
+        "recipeName",
+        description,
+        instructions,
+        meal,
+        difficulty,
+        time,
+        image_url AS img,
+        created_at AS "createdAt"
+      FROM recipes`
     );
     const rows = result.rows;
 
-    // Adicionar URL completa para as imagens
-    const baseUrl = getBaseUrl(req);
     const recipesWithUrls = rows.map((recipe) => ({
       ...recipe,
-      img: recipe.img ? `${baseUrl}${recipe.img}` : null,
+      img: recipe.img || null,
     }));
 
     res.json({
@@ -85,9 +84,10 @@ router.get("/get-recipes", async (req: Request, res: Response) => {
   }
 });
 
+
 router.post(
   "/create",
-  upload.single("image"),
+  upload.single("image"), // multer memoryStorage para req.file.buffer
   async (req: Request, res: Response<ApiResponse<CreateRecipeResponse>>) => {
     try {
       const {
@@ -107,25 +107,13 @@ router.post(
         .replace("T", " ");
 
       const missingFields: string[] = [];
+      if (!recipeName?.trim()) missingFields.push("nome da receita");
+      if (!description?.trim()) missingFields.push("descrição");
+      if (!instructions?.trim()) missingFields.push("instruções de preparo");
+      if (!time?.trim()) missingFields.push("tempo de preparo");
+      if (!meal?.trim()) missingFields.push("refeição");
+      if (!difficulty?.trim()) missingFields.push("dificuldade");
 
-      if (!recipeName || recipeName.trim() === "") {
-        missingFields.push("nome da receita");
-      }
-      if (!description || description.trim() === "") {
-        missingFields.push("descrição");
-      }
-      if (!instructions || instructions.trim() === "") {
-        missingFields.push("instruções de preparo");
-      }
-      if (!time || time.trim() === "") {
-        missingFields.push("tempo de preparo");
-      }
-      if (!meal || meal.trim() === "") {
-        missingFields.push("refeição");
-      }
-      if (!difficulty || difficulty.trim() === "") {
-        missingFields.push("dificuldade");
-      }
       if (!userId) {
         return res.status(400).json({
           data: null,
@@ -149,36 +137,52 @@ router.post(
         });
       }
 
+      // Cria a receita sem imagem
       const result = await pool.query<{ id: number }>(
         `INSERT INTO recipes (user_id, "recipeName", description, instructions, image_url, created_at, meal, time, difficulty) 
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-        [
-          Number(userId),
-          recipeName,
-          description,
-          instructions,
-          null,
-          mysqlDate,
-          meal,
-          time,
-          difficulty,
-        ]
+        [Number(userId), recipeName, description, instructions, null, mysqlDate, meal, time, difficulty]
       );
 
       const recipeId = result.rows[0].id;
-      const imagePath = req.file
-        ? saveFileToPublic(req.file, "recipes", Number(userId), recipeId)
-        : null;
 
-      if (imagePath) {
-        await pool.query(
-          `UPDATE recipes SET image_url = $1 WHERE id = $2`,
-          [imagePath, recipeId]
-        );
+      // Upload para Supabase se houver imagem
+      let imageUrl: string | null = null;
+      if (req.file) {
+        const fileExt = req.file.mimetype.split("/")[1];
+        const fileName = `recipe-${recipeId}-${Date.now()}.${fileExt}`;
+
+        const { error } = await supabase.storage
+          .from("recipes")
+          .upload(fileName, req.file.buffer, {
+            contentType: req.file.mimetype,
+            upsert: true,
+          });
+
+        if (error) {
+          console.error("Erro ao enviar imagem para Supabase:", error);
+          return res.status(500).json({
+            data: null,
+            message: ["Erro ao enviar imagem"],
+            result: false,
+          });
+        }
+
+        const { data } = supabase.storage
+          .from("recipes")
+          .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+
+        // Atualiza a receita com a URL pública
+        await pool.query(`UPDATE recipes SET image_url = $1 WHERE id = $2`, [
+          imageUrl,
+          recipeId,
+        ]);
       }
 
       res.json({
-        data: { id: result.rows[0].id },
+        data: { id: recipeId },
         message: ["Receita criada com sucesso"],
         result: true,
       });
@@ -192,5 +196,6 @@ router.post(
     }
   }
 );
+
 
 export default router;

@@ -7,6 +7,6 @@ export interface IResultLogin {
   id: number;
   name: string;
   email: string;
-  profilePhoto: string;
+  pfp: string;
   bio: string;
 }
